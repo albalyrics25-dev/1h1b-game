@@ -438,7 +438,7 @@
     $("result-title").textContent = title;
     const logo = fx && fx.logo;
     $("result-logo").hidden = !logo;
-    if (logo) { $("result-logo").src = `assets/logo_${logo}.webp`; $("result-logo").alt = title; $("result-logo").className = "result-logo " + logo; }
+    if (logo) { $("result-logo").src = { victory: "assets/logo_victory.webp", lose: "assets/logo_lose.webp" }[logo]; $("result-logo").alt = title; $("result-logo").className = "result-logo " + logo; }
     $("result-title").classList.toggle("sr-only", !!logo);
     $("result-detail").textContent = detail;
     renderAvatar($("result-fairy"), partner(), "stand");
