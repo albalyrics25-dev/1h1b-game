@@ -397,3 +397,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .input-label { font-size: 13px; color: var(--yellow); line-height: 1; }
 @media (max-height: 700px) { .memo .memo-how { display: none; } }
 @media (max-height: 590px) { .memo h3 { display: flex; font-size: 12px; margin-bottom: 1px; } .input-label { display: none; } }
+
+.avatar-card .avatar { width: 112px; height: 112px; }
+.avatar-card .pname { font-size: 18px; }
+.avatar-intro { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }

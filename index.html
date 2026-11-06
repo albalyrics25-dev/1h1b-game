@@ -62,7 +62,10 @@
           <button class="btn ghost small" type="button" disabled>🛋<br>模様替え<br><small>🔒準備中</small></button>
           <button class="btn ghost small" type="button" disabled>📖<br>コレクション<br><small>🔒準備中</small></button>
         </div>
-        <button class="btn ghost small" data-go="title">タイトルへ</button>
+        <div class="row room-row">
+          <button class="btn ghost small" data-go="avatar">🧑 生徒を変える</button>
+          <button class="btn ghost small" data-go="title">タイトルへ</button>
+        </div>
       </div>
     </section>
 
@@ -84,6 +87,13 @@
       <h3>特別な妖精（あとで解放）</h3>
       <div class="partner-grid locked" id="partner-locked"></div>
       <button class="btn" data-go="home" id="partner-back">もどる</button>
+    </section>
+
+    <section class="screen" id="screen-avatar" hidden>
+      <h2>あなたの生徒を選んでね</h2>
+      <p class="note-strong avatar-intro">ルミナリア学園の<wbr>生徒になって<wbr>対戦しよう！<br><small>あとで<wbr>寮の部屋から<wbr>変えられます</small></p>
+      <div class="partner-grid" id="avatar-grid"></div>
+      <button class="btn" data-go="home" id="avatar-back">もどる</button>
     </section>
 
     <section class="screen" id="screen-rules" hidden>

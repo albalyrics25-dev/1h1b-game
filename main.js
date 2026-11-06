@@ -22,6 +22,15 @@
     partnerId = id;
     try { localStorage.setItem(PARTNER_KEY, id); } catch (e) {  }
   }
+  const AVATAR_KEY = "lblia_1h1b_avatar_v1";
+  let avatarId = null;
+  try { avatarId = localStorage.getItem(AVATAR_KEY); } catch (e) {  }
+  function playerAvatar() { return (C.PLAYERS || []).find((p) => p.id === avatarId) || null; }
+  function saveAvatar(id) {
+    avatarId = id;
+    try { localStorage.setItem(AVATAR_KEY, id); } catch (e) {  }
+  }
+  function nextSetup() { return !playerAvatar() ? "avatar" : !partnerId ? "partner" : "title"; }
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
     if (!o.hidden) return true;
@@ -90,6 +99,7 @@
     if (name === "title") renderTitle();
     if (name === "room") renderRoom();
     if (name === "partner") renderPartner();
+    if (name === "avatar") renderAvatarChoice();
     if (name === "howto") renderHowto(0);
     if (name === "battle-setup") { secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
     if (name === "dice") resetDice();
@@ -186,7 +196,7 @@
     $("timer").hidden = true;
     $("my-secret-box").hidden = true;
     $("hist-cpu-box").hidden = true;
-    renderAvatar($("play-fairy"), partner());
+    renderAvatar($("play-fairy"), playerAvatar() || partner());
     $("play-opp").hidden = true;
     document.querySelector(".histories").classList.add("single");
     $("giveup-btn").textContent = "答えを見る";
@@ -268,7 +278,7 @@
     $("my-secret").textContent = S.pSecret.join("");
     $("hist-cpu-box").hidden = false;
     $("hist-cpu-title").textContent = `${opp.name}のコール`;
-    renderAvatar($("play-fairy"), partner());
+    renderAvatar($("play-fairy"), playerAvatar() || partner());
     renderAvatar($("play-opp"), opp); $("play-opp").hidden = false;
     document.querySelector(".histories").classList.remove("single");
     $("giveup-btn").textContent = "あきらめる";
@@ -480,6 +490,24 @@
     return b;
   }
 
+  function renderAvatarChoice() {
+    const grid = $("avatar-grid"); grid.innerHTML = "";
+    (C.PLAYERS || []).forEach((pl) => {
+      const b = document.createElement("button");
+      b.className = "partner-card avatar-card" + (pl.id === avatarId ? " selected" : ""); b.type = "button";
+      const av = document.createElement("span"); av.className = "avatar"; renderAvatar(av, pl);
+      const name = document.createElement("span"); name.className = "pname"; name.textContent = pl.name;
+      b.append(av, name);
+      b.addEventListener("click", () => {
+        const first = !playerAvatar();
+        saveAvatar(pl.id); SND.play("select");
+        show(first ? nextSetup() : "home");
+      });
+      grid.appendChild(b);
+    });
+    $("avatar-back").hidden = !playerAvatar();
+  }
+
   function renderPartner() {
     const grid = $("partner-grid"), locked = $("partner-locked");
     grid.innerHTML = ""; locked.innerHTML = "";
@@ -546,14 +574,14 @@
   }
   function finishHowto() {
     try { localStorage.setItem(HOWTO_KEY, "seen"); } catch (e) {  }
-    show(partnerId ? "title" : "partner");
+    show(nextSetup());
   }
   $("howto-next").addEventListener("click", () => { SND.play("tap"); howtoPage < HOWTO.length - 1 ? renderHowto(howtoPage + 1) : finishHowto(); });
   $("howto-prev").addEventListener("click", () => { howtoPage === 0 ? finishHowto() : renderHowto(howtoPage - 1); });
   let howtoSeen = false;
   try { howtoSeen = localStorage.getItem(HOWTO_KEY) === "seen"; } catch (e) {  }
 
-  show(!howtoSeen ? "howto" : (partnerId ? "title" : "partner"));
+  show(!howtoSeen ? "howto" : nextSetup());
 
   $("reset-btn").addEventListener("click", () => { $("reset-confirm").hidden = false; $("reset-btn").hidden = true; });
   $("reset-no").addEventListener("click", () => { $("reset-confirm").hidden = true; $("reset-btn").hidden = false; });

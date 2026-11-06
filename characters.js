@@ -75,7 +75,12 @@
     { id: "armchair", name: "ひじ掛け椅子", initial: false, image: "assets/furniture_armchair.webp", x: 78.3, y: 50.8, w: 24, z: 4 }
   ];
 
-  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE };
+  const PLAYERS = [
+    { id: "boy", name: "男の子", mark: "🧑", color: "#4f78b8", image: "assets/player_boy_icon.webp", icon: "assets/player_boy_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 877 / 847 } },
+    { id: "girl", name: "女の子", mark: "🧑", color: "#c98a78", image: "assets/player_girl_icon.webp", icon: "assets/player_girl_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 877 / 850 } }
+  ];
+
+  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);
