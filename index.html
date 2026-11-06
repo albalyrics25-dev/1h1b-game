@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>1H1B ルミナリア学園</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="splash" id="splash" role="img" aria-label="1H1B ルミナリア学園 登校中">
+    <img src="assets/loading.webp" alt="">
+  </div>
+  <main class="board" id="app">
+
+    <section class="screen" id="screen-title">
+      <div class="title-view">
+        <img class="title-bg" src="assets/title_bg.webp" alt="ルミナリア学園の正門" draggable="false">
+        <div class="title-overlay">
+          <h1 class="logo">1H<span class="pink">1</span>B</h1>
+          <p class="school ribbon">✿ ルミナリア学園 ✿</p>
+        </div>
+      </div>
+      <p class="catch">相手の<wbr>秘密の数字を<wbr>当てよう！</p>
+      <div class="fairy-talk title-talk"><span class="avatar big floaty" id="title-fairy" aria-hidden="true"></span><span class="bubble" id="title-bubble">いっしょにがんばろうね！</span></div>
+      <p class="partner-name" id="title-partner"></p>
+      <div class="menu">
+        <button class="btn primary" data-go="room">🏠 はじめる</button>
+        <div class="row sound-row">
+          <button class="btn ghost small" id="sound-btn" type="button">🔊 音：オン</button>
+          <button class="btn ghost small" id="bgm-btn" type="button">🎵 BGM：オン</button>
+        </div>
+        <button class="btn ghost" data-go="howto">🔰 あそびかた</button>
+        <button class="btn ghost" data-go="rules">？ ルール</button>
+      </div>
+      <div class="row">
+        <button class="btn ghost small" data-go="about">ℹ このゲームについて</button>
+        <a class="btn ghost small feedback-link" href="#" target="_blank" rel="noopener" hidden>💌 感想を送る</a>
+      </div>
+      <p class="note">体験版 v0.1</p>
+    </section>
+
+    <section class="screen" id="screen-room" hidden>
+      <h2>🏠 寮の部屋</h2>
+      <div class="room-view" id="room-view">
+        <img class="room-bg" src="assets/room_base.webp" alt="寮の自分の部屋" draggable="false">
+        <div id="room-furniture"></div>
+        <span class="room-bubble" id="room-bubble"></span>
+        <span class="avatar room-fairy" id="room-fairy" aria-hidden="true"></span>
+      </div>
+      <div class="menu room-menu">
+        <button class="btn primary" data-go="battle-setup">🏫 学校へ行く</button>
+        <div class="row room-row">
+          <button class="btn small" data-go="practice" id="room-practice">✎ 練習</button>
+          <button class="btn small" data-go="partner">🧚 妖精</button>
+          <button class="btn small" data-go="stats">📋 成績</button>
+        </div>
+        <div class="row room-row locked-row">
+          <button class="btn ghost small" type="button" disabled>👗<br>着せ替え<br><small>🔒準備中</small></button>
+          <button class="btn ghost small" type="button" disabled>🛋<br>模様替え<br><small>🔒準備中</small></button>
+          <button class="btn ghost small" type="button" disabled>📖<br>コレクション<br><small>🔒準備中</small></button>
+        </div>
+        <button class="btn ghost small" data-go="title">タイトルへ</button>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-howto" hidden>
+      <h2>🔰 あそびかた</h2>
+      <div class="howto-fairies" id="howto-fairies" aria-hidden="true"></div>
+      <div class="howto-card" id="howto-card"></div>
+      <div class="dots" id="howto-dots" aria-hidden="true"></div>
+      <div class="row">
+        <button class="btn ghost" id="howto-prev" type="button">もどる</button>
+        <button class="btn primary" id="howto-next" type="button">つぎへ</button>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-partner" hidden>
+      <h2>パートナー妖精を選んでね</h2>
+      <p class="note-strong" id="partner-intro">まずは4人の中から好きな妖精を選んでね！光と闇の妖精は、あとで特別な条件で仲間にできるよ！</p>
+      <div class="partner-grid" id="partner-grid"></div>
+      <h3>特別な妖精（あとで解放）</h3>
+      <div class="partner-grid locked" id="partner-locked"></div>
+      <button class="btn" data-go="home" id="partner-back">もどる</button>
+    </section>
+
+    <section class="screen" id="screen-rules" hidden>
+      <h2>ルール</h2>
+      <ul class="rules">
+        <li>0〜9の数字を1回ずつ使った<b>4桁</b>の数字を当てます。</li>
+        <li>先頭に0は使えません。</li>
+        <li><b class="hit">H（ヒット）</b>：数字も場所も合っている数。</li>
+        <li><b class="blow">B（ブロー）</b>：数字はあるが場所がちがう数。</li>
+        <li>4Hで正解！</li>
+        <li>対戦では、先攻・後攻をサイコロで決めます。</li>
+        <li>1回のターンは<b>60秒</b>。時間切れでターンはスキップ。</li>
+        <li>同じラウンドでお互いに4Hなら<b>引き分け</b>。</li>
+      </ul>
+      <button class="btn ghost small" data-go="howto">🔰 あそびかたを見る</button>
+      <p class="credit">音楽：Alba</p>
+      <button class="btn" data-go="title">もどる</button>
+    </section>
+
+    <section class="screen" id="screen-about" hidden>
+      <h2>このゲームについて</h2>
+      <div class="about">
+        <p><b>1H1B ルミナリア学園</b>　体験版 v0.1</p>
+        <p>L'BLia（ルブリア）のオリジナルゲームです。いまはコンピューターとの対戦と練習モードを遊べます。</p>
+        <h3>これから追加予定</h3>
+        <ul>
+          <li>自分のアバター（制服や髪型を選べる「自分の部屋」）</li>
+          <li>ネット対戦</li>
+        </ul>
+        <h3>データの保存について</h3>
+        <ul>
+          <li>成績・パートナー妖精・音の設定は、<b>この端末のブラウザの中だけ</b>に保存します。ほかの場所へは送りません。</li>
+          <li>名前・メールアドレスなどの個人情報は集めていません。</li>
+          <li>文字の表示に Google Fonts を使っているため、ページを開くと Google のサーバーから文字のデータを読み込みます。</li>
+          <li>ブラウザの履歴やサイトのデータを消すと、成績も消えます。</li>
+        </ul>
+        <div class="feedback-section" hidden>
+          <h3>感想・ご意見</h3>
+          <p>感想フォームから送れます（名前・住所・学校名・会社名・メールアドレスなど、個人が分かることは書かないでください）。感想フォームは Google フォームを使っています。送った内容は Google のサービスに保存されます。</p>
+          <a class="btn small feedback-link" href="#" target="_blank" rel="noopener" hidden>💌 感想を送る</a>
+        </div>
+        <h3>クレジット</h3>
+        <ul>
+          <li>企画・制作：L'BLia</li>
+          <li>音楽：Alba</li>
+          <li>イラスト：画像生成AIを使って制作しています</li>
+        </ul>
+      </div>
+      <button class="btn" data-go="title">もどる</button>
+    </section>
+
+    <section class="screen" id="screen-stats" hidden>
+      <h2>成績</h2>
+      <div class="stats" id="stats-body"></div>
+      <button class="btn" data-go="home">もどる</button>
+      <button class="btn ghost small" id="reset-btn" type="button">成績をリセット</button>
+      <div class="confirm" id="reset-confirm" hidden>
+        <p>成績をすべて消します。元に戻せません。よろしいですか？</p>
+        <div class="row">
+          <button class="btn small" id="reset-no" type="button">やめる</button>
+          <button class="btn small danger" id="reset-yes" type="button">消す</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-battle-setup" hidden>
+      <div class="class-view">
+        <img class="class-bg" src="assets/classroom.webp" alt="教室の黒板" draggable="false">
+        <div class="class-board">
+          <h2>対戦の準備</h2>
+          <div class="slots" id="secret-slots"></div>
+        </div>
+      </div>
+      <p class="hint">🔒 相手に<wbr>当てられないように、<wbr>あなたの<wbr><b>秘密の数字</b>（4桁）を<wbr>決めよう。<br><small>相手には<wbr>見えません。<wbr>相手も<wbr>秘密の数字を<wbr>決めています！</small></p>
+      <p class="msg" id="setup-msg"></p>
+      <div class="keypad" data-keypad="secret"></div>
+      <div class="row">
+        <button class="btn small" id="secret-random">おまかせ</button>
+        <label class="level">対戦相手
+          <select id="cpu-level"></select>
+        </label>
+      </div>
+      <div class="row">
+        <button class="btn ghost" data-go="home">もどる</button>
+        <button class="btn primary" id="secret-ok">決定してサイコロ</button>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-dice" hidden>
+      <h2>先攻・後攻を決めよう</h2>
+      <div class="dice-row">
+        <div><p>あなた</p><div class="die" id="die-player">?</div></div>
+        <div class="vs">VS</div>
+        <div><p id="dice-opp-name">相手</p><div class="die" id="die-cpu">?</div></div>
+      </div>
+      <p class="msg big" id="dice-msg"></p>
+      <button class="btn primary" id="dice-roll">サイコロをふる</button>
+      <button class="btn primary" id="dice-start" hidden>対戦スタート</button>
+    </section>
+
+    <section class="screen" id="screen-play" hidden>
+      <header class="play-head">
+        <span class="mode-label" id="mode-label">対戦中！</span>
+        <span class="head-actions">
+          <button class="btn ghost tiny" id="sound-btn2" type="button" aria-label="音をオフにする">🔊</button>
+          <button class="btn ghost tiny" id="giveup-btn">あきらめる</button>
+          <button class="btn tiny" id="newgame-btn">NEW GAME</button>
+          <button class="btn ghost tiny" data-go="home">もどる</button>
+        </span>
+      </header>
+
+      <div class="turn-box" id="turn-box">
+        <span class="avatar small" id="play-fairy" aria-hidden="true"></span>
+        <span class="turn" id="turn-label">あなたのターン</span>
+        <span class="tr"><span class="timer" id="timer">⏱ 60</span><span class="round" id="round-label"></span></span>
+        <span class="avatar small" id="play-opp" aria-hidden="true"></span>
+      </div>
+
+      <div class="my-secret" id="my-secret-box">
+        🔒 あなたの秘密の数字：<span id="my-secret"></span>
+      </div>
+
+      <div class="play-middle">
+        <div class="histories">
+          <div class="hist">
+            <h3>あなたのコール</h3>
+            <ol id="hist-player"></ol>
+          </div>
+          <div class="hist" id="hist-cpu-box">
+            <h3 id="hist-cpu-title">相手のコール</h3>
+            <ol id="hist-cpu"></ol>
+          </div>
+        </div>
+        <div class="memo">
+          <h3>📝 メモ用<span class="memo-note">（答えには入りません）</span><small class="memo-how">タップで ○→×→空</small></h3>
+          <div class="memo-row" id="memo"></div>
+        </div>
+      </div>
+
+      <div class="play-input">
+        <p class="input-label">✏ 答えを入力</p>
+        <div class="slots" id="guess-slots"></div>
+        <p class="msg" id="play-msg"></p>
+        <div class="keypad" data-keypad="guess"></div>
+        <button class="btn primary" id="call-btn">コールする</button>
+      </div>
+    </section>
+
+    <div class="overlay" id="result" hidden>
+      <div class="result-card">
+        <p class="result-title" id="result-title"></p>
+        <p id="result-detail"></p>
+        <div class="fairy-talk"><span class="avatar" id="result-fairy" aria-hidden="true"></span><span class="bubble" id="result-bubble"></span></div>
+        <div class="fairy-talk opp" id="result-opp-row"><span class="bubble" id="result-opp-bubble"></span><span class="avatar" id="result-opp" aria-hidden="true"></span></div>
+        <div class="row">
+          <button class="btn primary" id="result-again">もう一度</button>
+          <button class="btn" id="result-close">結果を見る</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="game.js"></script>
+  <script src="characters.js"></script>
+  <script src="sound.js"></script>
+  <script src="bgm.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
