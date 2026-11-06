@@ -9,7 +9,7 @@
   const C = window.H1B_CHARS;
   const FEEDBACK_URL = "https://docs.google.com/forms/d/e/1FAIpQLScvvz28U3uoSHag8P7O8I6kNaXPeHzBkB5ozZs5PR_6K0dHjw/viewform";
   const SND = window.H1B_SOUND || { play() {}, setEnabled() {}, isEnabled: () => false };
-  const BGM = window.H1B_BGM || { setScene() {}, setEnabled() {}, isEnabled: () => false, duck() {} };
+  const BGM = window.H1B_BGM || { setScene() {}, setEnabled() {}, isEnabled: () => false, duck() {}, jingle() {}, stopJingle() {}, prepareJingles() {} };
 
   function loadPartnerId() {
     try { return localStorage.getItem(PARTNER_KEY); } catch (e) { return null; }
@@ -101,6 +101,7 @@
     if (name === "room" || name === "title") homeScreen = name;
     document.querySelectorAll(".screen").forEach((el) => { el.hidden = el.id !== "screen-" + name; });
     if (name !== "play") stopTimers();
+    BGM.stopJingle();
     BGM.setScene(name === "practice" ? "battle" : name === "room" ? "avatar" : "main");
     if (name === "stats") { renderStats(); $("reset-confirm").hidden = true; $("reset-btn").hidden = false; }
     if (name === "title") renderTitle();
@@ -194,6 +195,7 @@
 
   function startPractice() {
     stopTimers();
+    BGM.stopJingle(); BGM.prepareJingles();
     S = { mode: "practice", secret: H.makeSecret(), input: [], hist: [], over: false, canInput: true };
     BGM.setScene("battle");
     document.querySelectorAll(".screen").forEach((el) => { el.hidden = el.id !== "screen-play"; });
@@ -267,7 +269,7 @@
   function startBattle(first) {
     stopTimers();
     const opp = opponentById($("cpu-level").value);
-    BGM.setScene("battle");
+    BGM.setScene("battle"); BGM.prepareJingles();
     S = {
       mode: "battle",
       opp, level: opp.level,
@@ -357,7 +359,7 @@
       renderHistory("hist-player", S.hist);
       $("play-msg").textContent = "";
       SND.play(result.hit === 4 ? "correct" : "result", result.hit);
-      if (result.hit === 4) { setTimeout(() => SND.play("win"), 450); BGM.duck(3400); finishPractice(false); }
+      if (result.hit === 4) { setTimeout(() => { if (SND.isEnabled()) BGM.jingle("win"); }, 450); finishPractice(false); }
       return;
     }
     stopTimers();
@@ -396,8 +398,7 @@
     rec[outcome]++;
     saveStats(st);
     const newly = C.OPPONENTS.filter((o) => isUnlocked(o, st) && !before.includes(o.id));
-    setTimeout(() => SND.play(outcome), 350);
-    if (outcome === "win") BGM.duck(3200);
+    setTimeout(() => { if (outcome === "draw") SND.play("draw"); else if (SND.isEnabled()) BGM.jingle(outcome); }, 350);
     if (newly.length) { setTimeout(() => SND.play("correct"), 1300); renderOpponentOptions(); }
     const title = { win: "勝ち！🎉", lose: gaveUp ? "降参…" : "負け…", draw: "引き分け" }[outcome];
     $("turn-label").textContent = title;
@@ -406,7 +407,7 @@
     const unlockMsg = newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "";
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
       partner().lines[outcome], S.opp, S.opp.lines[oppView] || "",
-      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden });
+      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome] });
   }
 
   function celebrate(fx) {
@@ -435,6 +436,10 @@
 
   function showResult(title, detail, fairyLine, opp, oppLine, fx) {
     $("result-title").textContent = title;
+    const logo = fx && fx.logo;
+    $("result-logo").hidden = !logo;
+    if (logo) { $("result-logo").src = `assets/logo_${logo}.webp`; $("result-logo").alt = title; $("result-logo").className = "result-logo " + logo; }
+    $("result-title").classList.toggle("sr-only", !!logo);
     $("result-detail").textContent = detail;
     renderAvatar($("result-fairy"), partner(), "stand");
     $("result-bubble").textContent = fairyLine;

@@ -431,3 +431,13 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 @media (prefers-reduced-motion: reduce) {
   .result-card.win .result-title, .result-card.win #result-fairy, .result-card.win #result-opp, .result-card.boss { animation: none; }
 }
+
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.result-logo { display: block; width: 122%; max-width: none; margin: -14px -11% -6px; pointer-events: none; }
+.result-logo.victory { -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%); mask-image: linear-gradient(to bottom, #000 88%, transparent 100%); }
+.result-logo.lose { -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 10%); mask-image: linear-gradient(to bottom, transparent 0%, #000 10%); animation: lose-drop 0.7s ease-out both; }
+.result-card.win .result-logo { animation: logo-stamp 0.6s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes logo-stamp { 0% { transform: scale(2.2); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes lose-drop { 0% { transform: translateY(-24px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.result-card.boss .result-logo { filter: drop-shadow(0 0 12px rgba(246,211,107,0.9)); }
+@media (prefers-reduced-motion: reduce) { .result-logo, .result-card.win .result-logo { animation: none; } }
