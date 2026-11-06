@@ -401,3 +401,33 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .avatar-card .avatar { width: 112px; height: 112px; }
 .avatar-card .pname { font-size: 18px; }
 .avatar-intro { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }
+
+.overlay { overflow: hidden; }
+.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.result-card { position: relative; z-index: 2; }
+.confetti i { position: absolute; top: -24px; width: 9px; height: 14px; background: var(--c); border-radius: 2px; opacity: 0;
+  animation: confetti-fall var(--d) linear var(--w) forwards; }
+.confetti i.star { width: auto; height: auto; background: none; color: var(--c); font-size: 18px; font-style: normal; text-shadow: 0 0 6px rgba(255,255,255,0.7); }
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), 110vh) rotate(var(--r)); }
+}
+.result-card.win .result-title {
+  align-self: center; display: inline-block; font-size: 40px; font-weight: 700; letter-spacing: 4px;
+  color: #fff7d6; background: linear-gradient(180deg, #d9534f, #a8322d);
+  border: 4px double #f6d36b; border-radius: 14px; padding: 4px 22px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35); box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 18px rgba(246,211,107,0.55);
+  transform: rotate(-6deg); animation: stamp-in 0.55s cubic-bezier(.2,1.6,.4,1) both;
+}
+@keyframes stamp-in { 0% { transform: scale(2.6) rotate(-18deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-6deg); opacity: 1; } }
+.result-card.win #result-fairy { animation: hop 0.6s ease-in-out 0.5s 3; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-16px) rotate(-4deg); } }
+.result-card.win #result-opp { animation: sulk 0.45s ease-in-out 0.9s 2; }
+@keyframes sulk { 0%, 100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-4px) rotate(-8deg); } 75% { transform: translateX(4px) rotate(8deg); } }
+.result-card.boss { animation: boss-glow 1.6s ease-in-out infinite; border-color: #d4a017; }
+.result-card.boss .result-title { background: linear-gradient(180deg, #f6d36b, #c99a1c); color: #3b2614; text-shadow: 0 1px 0 rgba(255,255,255,0.6); border-color: #fff3c4; }
+@keyframes boss-glow { 0%, 100% { box-shadow: 0 0 0 rgba(246,211,107,0); } 50% { box-shadow: 0 0 28px rgba(246,211,107,0.85); } }
+@media (prefers-reduced-motion: reduce) {
+  .result-card.win .result-title, .result-card.win #result-fairy, .result-card.win #result-opp, .result-card.boss { animation: none; }
+}

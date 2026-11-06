@@ -383,7 +383,7 @@
     const p = partner();
     showResult(revealed ? "答え" : "正解！🎉",
       revealed ? `答えは ${S.secret.join("")} でした` : `${moves}手で正解！（答え ${S.secret.join("")}）`,
-      revealed ? C.REVEAL_LINE : p.lines.correct, null, "");
+      revealed ? C.REVEAL_LINE : p.lines.correct, null, "", { win: !revealed });
   }
 
   function finishBattle(outcome, gaveUp) {
@@ -405,10 +405,35 @@
     const oppView = { win: "lose", lose: "win", draw: "draw" }[outcome];
     const unlockMsg = newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "";
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
-      partner().lines[outcome], S.opp, S.opp.lines[oppView] || "");
+      partner().lines[outcome], S.opp, S.opp.lines[oppView] || "",
+      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden });
   }
 
-  function showResult(title, detail, fairyLine, opp, oppLine) {
+  function celebrate(fx) {
+    const card = document.querySelector(".result-card"), box = $("confetti");
+    card.classList.remove("win", "boss"); box.innerHTML = "";
+    void card.offsetWidth;
+    if (!fx || !fx.win) return;
+    card.classList.add("win"); if (fx.boss) card.classList.add("boss");
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const colors = fx.boss ? ["#f6d36b", "#ffe9a8", "#d4a017", "#ffffff", "#b58cf0"] : ["#f6d36b", "#f29bb8", "#8cc4f2", "#9be28c", "#ffffff", "#f28b82"];
+    const n = fx.boss ? 90 : 55;
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement("i");
+      c.className = Math.random() < 0.3 ? "star" : "";
+      c.textContent = c.className ? "★" : "";
+      c.style.left = Math.random() * 100 + "%";
+      c.style.setProperty("--c", colors[i % colors.length]);
+      c.style.setProperty("--d", (2.2 + Math.random() * 1.8).toFixed(2) + "s");
+      c.style.setProperty("--w", (Math.random() * 1.2).toFixed(2) + "s");
+      c.style.setProperty("--x", ((Math.random() - 0.5) * 120).toFixed(0) + "px");
+      c.style.setProperty("--r", ((Math.random() - 0.5) * 900).toFixed(0) + "deg");
+      box.appendChild(c);
+    }
+    setTimeout(() => { box.innerHTML = ""; }, 5200);
+  }
+
+  function showResult(title, detail, fairyLine, opp, oppLine, fx) {
     $("result-title").textContent = title;
     $("result-detail").textContent = detail;
     renderAvatar($("result-fairy"), partner(), "stand");
@@ -416,6 +441,7 @@
     $("result-opp-row").hidden = !(opp && oppLine);
     if (opp && oppLine) { renderAvatar($("result-opp"), opp); $("result-opp-bubble").textContent = `${opp.name}「${oppLine}」`; }
     $("result").hidden = false;
+    celebrate(fx);
   }
   $("result-close").addEventListener("click", () => { $("result").hidden = true; });
   $("result-again").addEventListener("click", () => newGame());
