@@ -30,7 +30,14 @@
     avatarId = id;
     try { localStorage.setItem(AVATAR_KEY, id); } catch (e) {  }
   }
-  function nextSetup() { return !playerAvatar() ? "avatar" : !partnerId ? "partner" : "title"; }
+  let setupFlow = false;
+  function setupNext() {
+    if (!howtoSeen) return show("howto");
+    if (!playerAvatar()) return show("avatar");
+    if (!partnerId) return show("partner");
+    setupFlow = false;
+    show("room");
+  }
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
     if (!o.hidden) return true;
@@ -486,7 +493,7 @@
     const trait = document.createElement("span"); trait.className = "ptrait"; trait.textContent = f.locked ? f.unlock : f.trait;
     b.append(av, name, elem, trait);
     if (f.locked) b.disabled = true;
-    else b.addEventListener("click", () => { savePartner(f.id); SND.play("select"); show("home"); });
+    else b.addEventListener("click", () => { savePartner(f.id); SND.play("select"); setupFlow ? setupNext() : show("home"); });
     return b;
   }
 
@@ -499,9 +506,8 @@
       const name = document.createElement("span"); name.className = "pname"; name.textContent = pl.name;
       b.append(av, name);
       b.addEventListener("click", () => {
-        const first = !playerAvatar();
         saveAvatar(pl.id); SND.play("select");
-        show(first ? nextSetup() : "home");
+        setupFlow ? setupNext() : show("home");
       });
       grid.appendChild(b);
     });
@@ -574,14 +580,16 @@
   }
   function finishHowto() {
     try { localStorage.setItem(HOWTO_KEY, "seen"); } catch (e) {  }
-    show(nextSetup());
+    howtoSeen = true;
+    setupFlow ? setupNext() : show("home");
   }
   $("howto-next").addEventListener("click", () => { SND.play("tap"); howtoPage < HOWTO.length - 1 ? renderHowto(howtoPage + 1) : finishHowto(); });
   $("howto-prev").addEventListener("click", () => { howtoPage === 0 ? finishHowto() : renderHowto(howtoPage - 1); });
   let howtoSeen = false;
   try { howtoSeen = localStorage.getItem(HOWTO_KEY) === "seen"; } catch (e) {  }
 
-  show(!howtoSeen ? "howto" : nextSetup());
+  $("start-btn").addEventListener("click", () => { setupFlow = true; setupNext(); });
+  show("title");
 
   $("reset-btn").addEventListener("click", () => { $("reset-confirm").hidden = false; $("reset-btn").hidden = true; });
   $("reset-no").addEventListener("click", () => { $("reset-confirm").hidden = true; $("reset-btn").hidden = false; });
