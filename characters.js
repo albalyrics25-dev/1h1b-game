@@ -76,7 +76,7 @@
   ];
 
   const PLAYERS = [
-    { id: "boy", name: "男の子", mark: "🧑", color: "#4f78b8", image: "assets/player_boy_icon.webp", icon: "assets/player_boy_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 877 / 847 } },
+    { id: "boy", name: "男の子", mark: "🧑", color: "#4f78b8", image: "assets/player_boy_icon.webp", icon: "assets/player_boy_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 881 / 847 } },
     { id: "girl", name: "女の子", mark: "🧑", color: "#c98a78", image: "assets/player_girl_icon.webp", icon: "assets/player_girl_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 877 / 850 } }
   ];
 
