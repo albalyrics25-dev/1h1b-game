@@ -42,24 +42,28 @@
 
   const REVEAL_LINE = "答えを確認して、次の勝負に活かそう！";
 
+  const FACE_HINATA = { x: 0.5, y: 0.44, zoom: 1.65, aspect: 638 / 550 };
+  const FACE_SOUMA = { x: 0.5, y: 0.44, zoom: 1.65, aspect: 634 / 551 };
+  const FACE_SOUMA_TRUE = { x: 0.52, y: 0.44, zoom: 1.65, aspect: 632 / 563 };
+
   const OPPONENTS = [
     {
       id: "hinata", name: "陽向", reading: "ひなた", level: "easy", levelLabel: "やさしい", mark: "陽", color: "#e9a35b",
       profile: "明るく親しみやすい新入生",
       lines: { win: "やった！また一緒に勝負しよう！", lose: "次こそ勝つよ！", draw: "すごい！次は決着つけようね！" },
-      image: ""
+      image: "assets/opp_hinata_icon.webp", icon: "assets/opp_hinata_icon.webp", iconFace: FACE_HINATA
     },
     {
       id: "souma", name: "蒼真", reading: "そうま", level: "normal", levelLabel: "ふつう", mark: "蒼", color: "#4f78b8",
       profile: "落ち着いた分析好きの生徒",
       lines: { win: "いい対戦だったね", lose: "見事だね。僕ももっと研究しないと。", draw: "互角か。次の一手が楽しみだね。" },
-      image: ""
+      image: "assets/opp_souma_icon.webp", icon: "assets/opp_souma_icon.webp", iconFace: FACE_SOUMA
     },
     {
       id: "souma_true", name: "蒼真・覚醒", reading: "そうま・かくせい", level: "hard", levelLabel: "最強", mark: "蒼", color: "#2b3f6b",
       profile: "隠しボス。蒼真の本気。全部のヒントを使って考える",
       lines: { win: "まだ、僕の本気には届かないよ。", lose: "……参った。君は本当に強いね。", draw: "ここまで互角とは……面白い。" },
-      image: "",
+      image: "assets/opp_souma_true_icon.webp", icon: "assets/opp_souma_true_icon.webp", iconFace: FACE_SOUMA_TRUE,
       hidden: true, unlock: { opponent: "souma", wins: 3, text: "蒼真に3回勝つと解放" }
     }
   ];

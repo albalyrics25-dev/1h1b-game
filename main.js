@@ -37,7 +37,13 @@
     if (ch.image) {
       const img = document.createElement("img");
       img.src = ch.image; img.alt = ch.name; img.draggable = false;
-      if (mode === "face" && ch.icon) {
+      if (mode === "face" && ch.icon && ch.iconFace) {
+        const f = ch.iconFace;
+        img.src = ch.icon; img.className = "face";
+        img.style.width = f.zoom * 100 + "%";
+        img.style.left = 50 - f.x * f.zoom * 100 + "%";
+        img.style.top = 50 - f.y * f.zoom * 100 * f.aspect + "%";
+      } else if (mode === "face" && ch.icon) {
         img.src = ch.icon; img.className = "icon";
       } else if (mode === "face" && ch.face) {
         const f = ch.face, aspect = 724 / 543;
