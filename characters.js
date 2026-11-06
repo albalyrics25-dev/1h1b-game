@@ -42,9 +42,9 @@
 
   const REVEAL_LINE = "答えを確認して、次の勝負に活かそう！";
 
-  const FACE_HINATA = { x: 0.5, y: 0.44, zoom: 1.65, aspect: 638 / 550 };
-  const FACE_SOUMA = { x: 0.5, y: 0.44, zoom: 1.65, aspect: 634 / 551 };
-  const FACE_SOUMA_TRUE = { x: 0.52, y: 0.44, zoom: 1.65, aspect: 632 / 563 };
+  const FACE_HINATA = { x: 0.5, y: 0.40, zoom: 1.2, aspect: 638 / 550 };
+  const FACE_SOUMA = { x: 0.5, y: 0.40, zoom: 1.2, aspect: 634 / 551 };
+  const FACE_SOUMA_TRUE = { x: 0.52, y: 0.40, zoom: 1.2, aspect: 632 / 563 };
 
   const OPPONENTS = [
     {
