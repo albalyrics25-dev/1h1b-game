@@ -49,6 +49,15 @@
         <div id="room-furniture"></div>
         <span class="room-bubble" id="room-bubble"></span>
         <span class="avatar room-fairy" id="room-fairy" aria-hidden="true"></span>
+        <button class="profile-card" id="profile-card" type="button" aria-label="プロフィール（生徒と名前を変える）">
+          <span class="avatar profile-face" id="profile-face" aria-hidden="true"></span>
+          <span class="profile-text">
+            <span class="profile-name" id="profile-name"></span>
+            <span class="profile-rank" id="profile-rank"></span>
+            <span class="profile-bar" aria-hidden="true"><i id="profile-bar-fill"></i></span>
+            <small class="profile-next" id="profile-next"></small>
+          </span>
+        </button>
       </div>
       <div class="menu room-menu">
         <button class="btn primary" data-go="battle-setup">🏫 学校へ行く</button>
@@ -93,7 +102,19 @@
       <h2>あなたの生徒を選んでね</h2>
       <p class="note-strong avatar-intro">ルミナリア学園へ<wbr>ようこそ！<wbr>あなたも<wbr>学園の生徒になって、<wbr>数字当てで<wbr>対戦しよう！<br><small>あとで<wbr>寮の部屋から<wbr>変えられます</small></p>
       <div class="partner-grid" id="avatar-grid"></div>
+      <button class="btn ghost small" data-go="name" id="avatar-name-btn" hidden>✏ 名前を変える</button>
       <button class="btn" data-go="home" id="avatar-back">もどる</button>
+    </section>
+
+    <section class="screen" id="screen-name" hidden>
+      <h2>あなたの名前は？</h2>
+      <p class="note-strong avatar-intro">パートナーの<wbr>妖精が、<wbr>あなたを<wbr>名前で<wbr>呼んでくれます。<br><small>ニックネームで<wbr>入れてね（本名は<wbr>入れないでね）。<wbr>8文字まで。<wbr>この端末の<wbr>中だけに<wbr>保存します。</small></p>
+      <input class="name-input" id="name-input" type="text" maxlength="8" autocomplete="off" placeholder="ニックネーム" aria-label="ニックネーム（8文字まで）">
+      <p class="msg" id="name-msg"></p>
+      <div class="row">
+        <button class="btn ghost" id="name-skip" type="button">あとで決める</button>
+        <button class="btn primary" id="name-ok" type="button">決定</button>
+      </div>
     </section>
 
     <section class="screen" id="screen-rules" hidden>

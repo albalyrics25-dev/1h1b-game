@@ -441,3 +441,24 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 @keyframes lose-drop { 0% { transform: translateY(-24px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 .result-card.boss .result-logo { filter: drop-shadow(0 0 12px rgba(246,211,107,0.9)); }
 @media (prefers-reduced-motion: reduce) { .result-logo, .result-card.win .result-logo { animation: none; } }
+
+.room-view .profile-card {
+  position: absolute; left: 2%; top: 2%; z-index: 12; max-width: 66%;
+  display: flex; align-items: center; gap: 7px; padding: 5px 9px 5px 5px;
+  font: inherit; color: var(--chalk); text-align: left; cursor: pointer;
+  background: rgba(23,58,42,0.86); border: 2px solid rgba(246,211,107,0.55); border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.profile-card .profile-face { width: 46px; height: 46px; border-width: 3px; }
+.profile-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.profile-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-rank { font-size: 12px; color: var(--yellow); white-space: nowrap; }
+.profile-bar { display: block; width: 96px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.18); overflow: hidden; margin-top: 2px; }
+.profile-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f6d36b, #f29bb8); border-radius: 3px; }
+.profile-next { font-size: 10px; color: var(--chalk-dim); white-space: nowrap; }
+.avatar.rank-bronze { border-color: #c98a4b; box-shadow: 0 0 0 1px #7a4d22; }
+.avatar.rank-silver { border-color: #e3e7ec; box-shadow: 0 0 0 1px #8a95a3, 0 0 6px rgba(227,231,236,0.6); }
+.avatar.rank-gold { border-color: #f6d36b; box-shadow: 0 0 0 1px #b8860b, 0 0 10px rgba(246,211,107,0.85); }
+.avatar.rank-rainbow { border-color: transparent; box-shadow: 0 0 0 3px #f29bb8, 0 0 0 5px #8cc4f2, 0 0 14px rgba(246,211,107,0.9); }
+@media (max-width: 360px) { .profile-card .profile-face { width: 40px; height: 40px; } .profile-bar { width: 80px; } }
+.name-input { font: inherit; font-size: 20px; text-align: center; padding: 10px; border-radius: 10px; border: 2px solid var(--chalk-dim); background: #fffdf6; color: #2b2b2b; width: 100%; max-width: 320px; align-self: center; }

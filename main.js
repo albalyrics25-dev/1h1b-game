@@ -34,10 +34,23 @@
   function setupNext() {
     if (!howtoSeen) return show("howto");
     if (!playerAvatar()) return show("avatar");
+    if (!nameAsked()) return show("name");
     if (!partnerId) return show("partner");
     setupFlow = false;
     show("room");
   }
+  const NAME_KEY = "lblia_1h1b_name_v1";
+  const NAME_ASKED_KEY = "lblia_1h1b_name_asked_v1";
+  function playerName() { try { return localStorage.getItem(NAME_KEY) || ""; } catch (e) { return ""; } }
+  function nameAsked() { try { return localStorage.getItem(NAME_ASKED_KEY) === "yes"; } catch (e) { return true; } }
+  function saveName(name) {
+    try { localStorage.setItem(NAME_ASKED_KEY, "yes"); if (name) localStorage.setItem(NAME_KEY, name); else localStorage.removeItem(NAME_KEY); } catch (e) {  }
+  }
+  function call(line) { const n = playerName(); return n && line ? `${n}、${line}` : line; }
+
+  function rankFor(wins) { let r = C.RANKS[0]; C.RANKS.forEach((x) => { if (wins >= x.min) r = x; }); return r; }
+  function nextRank(wins) { return C.RANKS.find((x) => x.min > wins) || null; }
+
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
     if (!o.hidden) return true;
@@ -108,6 +121,7 @@
     if (name === "room") renderRoom();
     if (name === "partner") renderPartner();
     if (name === "avatar") renderAvatarChoice();
+    if (name === "name") { $("name-input").value = playerName(); $("name-msg").textContent = ""; }
     if (name === "howto") renderHowto(0);
     if (name === "battle-setup") { secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
     if (name === "dice") resetDice();
@@ -385,7 +399,7 @@
     const p = partner();
     showResult(revealed ? "答え" : "正解！🎉",
       revealed ? `答えは ${S.secret.join("")} でした` : `${moves}手で正解！（答え ${S.secret.join("")}）`,
-      revealed ? C.REVEAL_LINE : p.lines.correct, null, "", { win: !revealed });
+      revealed ? C.REVEAL_LINE : call(p.lines.correct), null, "", { win: !revealed });
   }
 
   function finishBattle(outcome, gaveUp) {
@@ -404,9 +418,12 @@
     $("turn-label").textContent = title;
     $("timer").textContent = "⏱ --"; $("timer").classList.remove("danger");
     const oppView = { win: "lose", lose: "win", draw: "draw" }[outcome];
-    const unlockMsg = newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "";
+    const rankBefore = rankFor(st.battle.win - (outcome === "win" ? 1 : 0)), rankNow = rankFor(st.battle.win);
+    const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
+    if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
+    const unlockMsg = rankMsg + (newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "");
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
-      partner().lines[outcome], S.opp, S.opp.lines[oppView] || "",
+      call(partner().lines[outcome]), S.opp, S.opp.lines[oppView] || "",
       { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome] });
   }
 
@@ -470,6 +487,7 @@
     const total = st.battle.win + st.battle.lose + st.battle.draw;
     const rate = total ? Math.round((st.battle.win / total) * 100) + "%" : "—";
     $("stats-body").innerHTML =
+      `<p>🎓 称号：${rankFor(st.battle.win).name}</p>` +
       `<p>⚔ 対戦：${st.battle.win}勝 ${st.battle.lose}敗 ${st.battle.draw}分（勝率 ${rate}）</p>` +
       C.OPPONENTS.filter((o) => isUnlocked(o, st)).map((o) => {
         const r = st.byOpp[o.id] || { win: 0, lose: 0, draw: 0 };
@@ -482,7 +500,7 @@
   function renderTitle() {
     const p = partner();
     renderAvatar($("title-fairy"), p, "stand");
-    $("title-bubble").textContent = p.greeting;
+    $("title-bubble").textContent = call(p.greeting);
     $("title-partner").textContent = `パートナー：${p.name}（${p.element}の妖精）`;
   }
 
@@ -501,9 +519,23 @@
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
     const guide = !practiceDone();
-    $("room-bubble").textContent = guide ? ROOM_LINES.guide : p.greeting;
+    $("room-bubble").textContent = call(guide ? ROOM_LINES.guide : p.greeting);
+    renderProfile();
     $("room-practice").classList.toggle("guide", guide);
   }
+  function renderProfile() {
+    const wins = loadStats().battle.win, r = rankFor(wins), nx = nextRank(wins);
+    const face = $("profile-face");
+    renderAvatar(face, playerAvatar() || partner());
+    face.className = face.className.replace(/\brank-\S+/g, "").trim() + " rank-" + r.frame;
+    $("profile-name").textContent = playerName() || "名前なし";
+    $("profile-rank").textContent = "🎓 " + r.name;
+    const from = r.min, to = nx ? nx.min : r.min;
+    $("profile-bar-fill").style.width = nx ? Math.round(((wins - from) / (to - from)) * 100) + "%" : "100%";
+    $("profile-next").textContent = nx ? `「${nx.name}」まで あと${nx.min - wins}勝` : `${wins}勝・最高の称号！`;
+  }
+  $("profile-card").addEventListener("click", () => { SND.play("tap"); show("avatar"); });
+
   const ROOM_LINES = { guide: "まずは練習してみよう！", closet: "着せ替えはもうすぐ！楽しみにしててね" };
   const PRACTICE_KEY = "lblia_1h1b_practiced_v1";
   function practiceDone() { try { return localStorage.getItem(PRACTICE_KEY) === "yes"; } catch (e) { return false; } }
@@ -511,7 +543,7 @@
   $("room-furniture").addEventListener("click", (e) => {
     if (!e.target.closest('[data-furn="closet"]')) return;
     SND.play("tap");
-    $("room-bubble").textContent = ROOM_LINES.closet;
+    $("room-bubble").textContent = call(ROOM_LINES.closet);
   });
 
   function partnerCard(f) {
@@ -543,7 +575,20 @@
       grid.appendChild(b);
     });
     $("avatar-back").hidden = !playerAvatar();
+    $("avatar-name-btn").hidden = !playerAvatar() || setupFlow;
   }
+
+  function finishName(name) {
+    saveName(name); SND.play("select");
+    setupFlow ? setupNext() : show("home");
+  }
+  $("name-ok").addEventListener("click", () => {
+    const name = $("name-input").value.replace(/\s+/g, " ").trim().slice(0, 8);
+    if (!name) { $("name-msg").textContent = "名前を入れるか、「あとで決める」を押してね"; return; }
+    finishName(name);
+  });
+  $("name-skip").addEventListener("click", () => finishName(playerName()));
+  $("name-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("name-ok").click(); });
 
   function renderPartner() {
     const grid = $("partner-grid"), locked = $("partner-locked");

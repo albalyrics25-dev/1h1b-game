@@ -80,7 +80,14 @@
     { id: "girl", name: "女の子", mark: "🧑", color: "#c98a78", image: "assets/player_girl_icon.webp", icon: "assets/player_girl_icon.webp", iconFace: { x: 0.5, y: 0.52, zoom: 1.12, aspect: 877 / 850 } }
   ];
 
-  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS };
+  const RANKS = [
+    { min: 0, name: "新入生", frame: "bronze" },
+    { min: 3, name: "2年生", frame: "silver" },
+    { min: 10, name: "3年生", frame: "gold" },
+    { min: 25, name: "首席", frame: "rainbow" }
+  ];
+
+  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);
