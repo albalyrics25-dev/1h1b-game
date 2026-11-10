@@ -46,7 +46,29 @@
   function saveName(name) {
     try { localStorage.setItem(NAME_ASKED_KEY, "yes"); if (name) localStorage.setItem(NAME_KEY, name); else localStorage.removeItem(NAME_KEY); } catch (e) {  }
   }
-  function call(line) { const n = playerName(); return n && line ? `${n}、${line}` : line; }
+  function say(p, scene, base) {
+    const n = playerName();
+    let list = [].concat(base ? [base] : [], (p.talk && p.talk[scene]) || []);
+    if (!n) list = list.filter((t) => !t.includes("{名前}"));
+    if (!list.length) return base || "";
+    const t = list[Math.floor(Math.random() * list.length)];
+    return t.replace(/\{名前\}/g, n);
+  }
+  function sayNamed(p, scene, base) {
+    const n = playerName(), list = (p.talk && p.talk[scene]) || [];
+    const named = list.filter((t) => t.includes("{名前}"));
+    if (n && named.length) return named[Math.floor(Math.random() * named.length)].replace(/\{名前\}/g, n);
+    return say(p, scene, base);
+  }
+  function timeScene() { const h = new Date().getHours(); return h >= 5 && h <= 10 ? "morning" : h >= 11 && h <= 17 ? "noon" : "night"; }
+  function greet(p) { return Math.random() < 0.35 ? say(p, timeScene()) : say(p, "greet", p.greeting); }
+  const LAST_VISIT_KEY = "lblia_1h1b_last_visit_v1";
+  const longTimeNoSee = (() => {
+    let last = 0; try { last = Number(localStorage.getItem(LAST_VISIT_KEY)) || 0; localStorage.setItem(LAST_VISIT_KEY, String(Date.now())); } catch (e) {  }
+    return last > 0 && Date.now() - last >= 3 * 24 * 60 * 60 * 1000;
+  })();
+  let longTimeShown = false;
+  let backFromPlay = false;
 
   function rankFor(wins) { let r = C.RANKS[0]; C.RANKS.forEach((x) => { if (wins >= x.min) r = x; }); return r; }
   function nextRank(wins) { return C.RANKS.find((x) => x.min > wins) || null; }
@@ -111,6 +133,7 @@
   let homeScreen = "title";
   function show(name) {
     if (name === "home") name = homeScreen;
+    if (name === "room" && S && S.over) { backFromPlay = true; S = null; }
     if (name === "room" || name === "title") homeScreen = name;
     document.querySelectorAll(".screen").forEach((el) => { el.hidden = el.id !== "screen-" + name; });
     if (name !== "play") stopTimers();
@@ -399,7 +422,7 @@
     const p = partner();
     showResult(revealed ? "答え" : "正解！🎉",
       revealed ? `答えは ${S.secret.join("")} でした` : `${moves}手で正解！（答え ${S.secret.join("")}）`,
-      revealed ? C.REVEAL_LINE : call(p.lines.correct), null, "", { win: !revealed });
+      revealed ? C.REVEAL_LINE : say(p, "correct", p.lines.correct), null, "", { win: !revealed });
   }
 
   function finishBattle(outcome, gaveUp) {
@@ -408,6 +431,7 @@
     const st = loadStats();
     const before = C.OPPONENTS.filter((o) => isUnlocked(o, st)).map((o) => o.id);
     st.battle[outcome]++;
+    st.streak = outcome === "win" ? (st.streak || 0) + 1 : 0;
     const rec = st.byOpp[S.opp.id] || (st.byOpp[S.opp.id] = { win: 0, lose: 0, draw: 0 });
     rec[outcome]++;
     saveStats(st);
@@ -423,7 +447,8 @@
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const unlockMsg = rankMsg + (newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "");
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
-      call(partner().lines[outcome]), S.opp, S.opp.lines[oppView] || "",
+      rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
+      S.opp, S.opp.lines[oppView] || "",
       { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome] });
   }
 
@@ -500,7 +525,7 @@
   function renderTitle() {
     const p = partner();
     renderAvatar($("title-fairy"), p, "stand");
-    $("title-bubble").textContent = call(p.greeting);
+    $("title-bubble").textContent = longTimeNoSee && !longTimeShown ? (longTimeShown = true, sayNamed(p, "longtime", p.greeting)) : greet(p);
     $("title-partner").textContent = `パートナー：${p.name}（${p.element}の妖精）`;
   }
 
@@ -519,7 +544,13 @@
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
     const guide = !practiceDone();
-    $("room-bubble").textContent = call(guide ? ROOM_LINES.guide : p.greeting);
+    let line;
+    if (guide) line = ROOM_LINES.guide;
+    else if (longTimeNoSee && !longTimeShown) { longTimeShown = true; line = sayNamed(p, "longtime", p.greeting); }
+    else if (backFromPlay) line = say(p, "back");
+    else line = greet(p);
+    backFromPlay = false;
+    $("room-bubble").textContent = line;
     renderProfile();
     $("room-practice").classList.toggle("guide", guide);
   }
@@ -543,7 +574,7 @@
   $("room-furniture").addEventListener("click", (e) => {
     if (!e.target.closest('[data-furn="closet"]')) return;
     SND.play("tap");
-    $("room-bubble").textContent = call(ROOM_LINES.closet);
+    $("room-bubble").textContent = say(partner(), "closet", ROOM_LINES.closet);
   });
 
   function partnerCard(f) {
