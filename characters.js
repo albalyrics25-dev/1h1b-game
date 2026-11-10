@@ -259,13 +259,16 @@
   ];
 
   const RANKS = [
-    { min: 0, name: "新入生", frame: "bronze" },
-    { min: 3, name: "2年生", frame: "silver" },
-    { min: 10, name: "3年生", frame: "gold" },
-    { min: 25, name: "首席", frame: "rainbow" }
+    { min: 0, name: "新入生", frame: "bronze", badge: "" },
+    { min: 3, name: "1年生", frame: "bronze", badge: "🔰" },
+    { min: 8, name: "2年生", frame: "silver", badge: "⭐" },
+    { min: 15, name: "3年生", frame: "gold", badge: "🌟" },
+    { min: 25, name: "優等生", frame: "platinum", badge: "🏅" },
+    { min: 40, name: "首席", frame: "rainbow", badge: "👑" }
   ];
+  const WIN_POINTS = { hinata: 1, souma: 2, souma_true: 3 };
 
-  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS };
+  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);

@@ -72,6 +72,11 @@
 
   function rankFor(wins) { let r = C.RANKS[0]; C.RANKS.forEach((x) => { if (wins >= x.min) r = x; }); return r; }
   function nextRank(wins) { return C.RANKS.find((x) => x.min > wins) || null; }
+  function schoolPoints(st) {
+    st = st || loadStats(); let pts = 0;
+    Object.entries(st.byOpp || {}).forEach(([id, r]) => { pts += (r.win || 0) * (C.WIN_POINTS[id] || 1); });
+    return pts;
+  }
 
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
@@ -442,7 +447,8 @@
     $("turn-label").textContent = title;
     $("timer").textContent = "⏱ --"; $("timer").classList.remove("danger");
     const oppView = { win: "lose", lose: "win", draw: "draw" }[outcome];
-    const rankBefore = rankFor(st.battle.win - (outcome === "win" ? 1 : 0)), rankNow = rankFor(st.battle.win);
+    const ptsNow = schoolPoints(st), ptsGot = outcome === "win" ? (C.WIN_POINTS[S.opp.id] || 1) : 0;
+    const rankBefore = rankFor(ptsNow - ptsGot), rankNow = rankFor(ptsNow);
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const unlockMsg = rankMsg + (newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "");
@@ -512,7 +518,8 @@
     const total = st.battle.win + st.battle.lose + st.battle.draw;
     const rate = total ? Math.round((st.battle.win / total) * 100) + "%" : "—";
     $("stats-body").innerHTML =
-      `<p>🎓 称号：${rankFor(st.battle.win).name}</p>` +
+      `<p>🎓 称号：${rankFor(schoolPoints(st)).name}（成績 ${schoolPoints(st)}点）</p>` +
+      `<p class="sub">陽向に勝つと1点、蒼真は2点、隠しボスは3点</p>` +
       `<p>⚔ 対戦：${st.battle.win}勝 ${st.battle.lose}敗 ${st.battle.draw}分（勝率 ${rate}）</p>` +
       C.OPPONENTS.filter((o) => isUnlocked(o, st)).map((o) => {
         const r = st.byOpp[o.id] || { win: 0, lose: 0, draw: 0 };
@@ -555,15 +562,15 @@
     $("room-practice").classList.toggle("guide", guide);
   }
   function renderProfile() {
-    const wins = loadStats().battle.win, r = rankFor(wins), nx = nextRank(wins);
+    const wins = schoolPoints(), r = rankFor(wins), nx = nextRank(wins);
     const face = $("profile-face");
     renderAvatar(face, playerAvatar() || partner());
     face.className = face.className.replace(/\brank-\S+/g, "").trim() + " rank-" + r.frame;
     $("profile-name").textContent = playerName() || "名前なし";
-    $("profile-rank").textContent = "🎓 " + r.name;
+    $("profile-rank").textContent = "🎓 " + r.name + (r.badge ? " " + r.badge : "");
     const from = r.min, to = nx ? nx.min : r.min;
     $("profile-bar-fill").style.width = nx ? Math.round(((wins - from) / (to - from)) * 100) + "%" : "100%";
-    $("profile-next").textContent = nx ? `「${nx.name}」まで あと${nx.min - wins}勝` : `${wins}勝・最高の称号！`;
+    $("profile-next").textContent = nx ? `「${nx.name}」まで あと${nx.min - wins}点` : `成績${wins}点・最高の称号！`;
   }
   $("profile-card").addEventListener("click", () => { SND.play("tap"); show("avatar"); });
 

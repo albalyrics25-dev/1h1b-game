@@ -465,3 +465,4 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .howto-steps { text-align: left; margin: 0 auto; padding-left: 1.6em; font-size: 16px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
 .howto-steps li { margin: 2px 0; }
 @media (max-height: 700px) { .howto-steps { font-size: 14px; line-height: 1.45; } }
+.avatar.rank-platinum { border-color: #dff3ff; box-shadow: 0 0 0 1px #7fa7c4, 0 0 12px rgba(180,225,255,0.95); }
