@@ -238,6 +238,30 @@
       image: "assets/opp_souma_icon.webp", icon: "assets/opp_souma_icon.webp", iconFace: FACE_SOUMA
     },
     {
+      id: "soft", name: "（新しい女の子）", reading: "", level: "soft", levelLabel: "やさしい＋", mark: "新", color: "#f2a6c0",
+      profile: "陽向の次に出てくる、ソフトな女の子（設定はあお副社長が決める）",
+      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      unlock: { opponent: "hinata", wins: 1, text: "陽向に1回勝つと登場" }
+    },
+    {
+      id: "mid", name: "（新しい生徒）", reading: "", level: "mid", levelLabel: "ふつうの手前", mark: "新", color: "#8cc49a",
+      profile: "蒼真の手前の強さ",
+      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      unlock: { opponent: "soft", wins: 2, text: "前の相手に2回勝つと登場" }
+    },
+    {
+      id: "rival", name: "（蒼真のライバル）", reading: "", level: "rival", levelLabel: "ふつう", mark: "新", color: "#9a86d6",
+      profile: "蒼真と同じくらいの強さ。考え方が少しちがう",
+      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      unlock: { opponent: "souma", wins: 1, text: "蒼真に1回勝つと登場" }
+    },
+    {
+      id: "strong", name: "（強い生徒）", reading: "", level: "strong", levelLabel: "つよい", mark: "新", color: "#d9734f",
+      profile: "覚醒の手前の強さ",
+      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      unlock: { opponent: "rival", wins: 2, text: "前の相手に2回勝つと登場" }
+    },
+    {
       id: "souma_true", name: "蒼真・覚醒", reading: "そうま・かくせい", level: "hard", levelLabel: "最強", mark: "蒼", color: "#2b3f6b",
       profile: "隠しボス。蒼真の本気。全部のヒントを使って考える",
       lines: { win: "まだ、僕の本気には届かないよ。", lose: "……参った。君は本当に強いね。", draw: "ここまで互角とは……面白い。" },
@@ -266,7 +290,13 @@
     { min: 25, name: "優等生", frame: "platinum", badge: "🏅" },
     { min: 40, name: "首席", frame: "rainbow", badge: "👑" }
   ];
-  const WIN_POINTS = { hinata: 1, souma: 2, souma_true: 3 };
+  const WIN_POINTS = { hinata: 1, soft: 1, mid: 2, souma: 2, rival: 2, strong: 3, souma_true: 3 };
+
+  const ORDER = ["hinata", "soft", "mid", "souma", "rival", "strong", "souma_true"];
+  OPPONENTS.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+  const SHOW_DRAFT = typeof location !== "undefined" && /[?&]draft=1/.test(location.search);
+  const ACTIVE = OPPONENTS.filter((o) => o.ready !== false || SHOW_DRAFT);
+  OPPONENTS.length = 0; ACTIVE.forEach((o) => OPPONENTS.push(o));
 
   const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

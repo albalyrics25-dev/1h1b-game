@@ -80,7 +80,7 @@
 
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
-    if (!o.hidden) return true;
+    if (!o.unlock) return true;
     const rec = (st || loadStats()).byOpp[o.unlock.opponent];
     return !!rec && rec.win >= o.unlock.wins;
   }
@@ -151,7 +151,7 @@
     if (name === "avatar") renderAvatarChoice();
     if (name === "name") { $("name-input").value = playerName(); $("name-msg").textContent = ""; }
     if (name === "howto") renderHowto(0);
-    if (name === "battle-setup") { secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
+    if (name === "battle-setup") { renderOpponentOptions(); secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
     if (name === "dice") resetDice();
     if (name === "practice") { markPracticeDone(); startPractice(); return; }
     window.scrollTo(0, 0);
@@ -451,7 +451,7 @@
     const rankBefore = rankFor(ptsNow - ptsGot), rankNow = rankFor(ptsNow);
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
-    const unlockMsg = rankMsg + (newly.length ? `\n🔓 隠しボス「${newly.map((o) => o.name).join("・")}」が解放されました！` : "");
+    const unlockMsg = rankMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
       rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
       S.opp, S.opp.lines[oppView] || "",
@@ -641,7 +641,7 @@
     C.OPPONENTS.forEach((o) => {
       const opt = document.createElement("option");
       opt.value = o.id;
-      if (isUnlocked(o, st)) opt.textContent = `${o.name}（${o.levelLabel}）`;
+      if (isUnlocked(o, st)) { const won = (st.byOpp[o.id] || {}).win > 0; opt.textContent = `${won ? "✅ " : ""}${o.name}（${o.levelLabel}）`; }
       else { opt.textContent = `🔒 ？？？（${o.unlock.text}）`; opt.disabled = true; }
       sel.appendChild(opt);
     });
