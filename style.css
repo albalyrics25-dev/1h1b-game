@@ -462,3 +462,6 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .avatar.rank-rainbow { border-color: transparent; box-shadow: 0 0 0 3px #f29bb8, 0 0 0 5px #8cc4f2, 0 0 14px rgba(246,211,107,0.9); }
 @media (max-width: 360px) { .profile-card .profile-face { width: 40px; height: 40px; } .profile-bar { width: 80px; } }
 .name-input { font: inherit; font-size: 20px; text-align: center; padding: 10px; border-radius: 10px; border: 2px solid var(--chalk-dim); background: #fffdf6; color: #2b2b2b; width: 100%; max-width: 320px; align-self: center; }
+.howto-steps { text-align: left; margin: 0 auto; padding-left: 1.6em; font-size: 16px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
+.howto-steps li { margin: 2px 0; }
+@media (max-height: 700px) { .howto-steps { font-size: 14px; line-height: 1.45; } }

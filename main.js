@@ -625,14 +625,20 @@
   const HOWTO_KEY = "lblia_1h1b_howto_v1";
   const W = (t) => t.replace(/\|/g, "<wbr>");
   const HOWTO = [
-    W(`<p class="big-text">相手は|4桁の|<b>秘密の数字</b>を|決めています。</p>
+    W(`<p class="big-text">相手の|<b>秘密の4桁の数字</b>を|推理して|当てるゲームです。</p>
      <div class="demo secret"><span>？</span><span>？</span><span>？</span><span>？</span></div>
+     <p class="ex"><b>先に|当てた方が|勝ち！</b></p>
+     <small>あなたも|秘密の数字を|決めて、|相手と|交代で|当て合います。</small>`),
+    W(`<p class="big-text">対戦の|流れ</p>
+     <ol class="howto-steps">
+       <li>あなたの|<b>秘密の数字</b>を|決める|（相手には|見えません）</li>
+       <li>サイコロで|先攻・後攻を|決める</li>
+       <li>交代で、|相手の数字を|予想して|<b>コール</b>する</li>
+       <li>ヒントを|見ながら、|答えを|しぼりこむ</li>
+     </ol>`),
+    W(`<p class="big-text">数字の|決まり</p>
      <small>0〜9の|数字を|1回ずつ|使います。|同じ数字は|2回|使えません。</small>
      <p class="zero-rule"><b>0</b>だけは|いちばん左に|置けません！<br><span class="ng">✕ 0123</span>　<span class="ok">○ 1023</span></p>`),
-    W(`<p class="big-text">その数字を|<b>当てよう！</b></p>
-     <p class="ex">4つの数字を|選んで|「コール」|しよう。</p>
-     <div class="demo"><span>1</span><span>2</span><span>3</span><span>4</span></div>
-     <small>先に|ぴったり|当てた方が|勝ち！</small>`),
     W(`<p class="big-text">コールすると|ヒントが|出ます。</p>
      <p class="ex">❤️ <b class="hit">H（ヒット）</b>…|数字も|場所も|大正解！</p>
      <p class="ex">💙 <b class="blow">B（ブロー）</b>…|数字は|当たり！|でも|場所が|違う</p>
@@ -642,7 +648,7 @@
        <p class="hb-result">→ <b class="hit">1H</b>（1）<b class="blow">2B</b>（5と3）</p>
      </div>`),
     W(`<p class="big-text"><b class="hit">4H</b>に|なったら|大正解！🎉</p>
-     <small>対戦では|あなたも|秘密の数字を|決めて、|相手と|交代で|当て合います。<br>まずは|「練習モード」で|試してみよう！</small>`)
+     <small>まずは|「練習モード」で|試してみよう！</small>`)
   ];
   let howtoPage = 0;
   function renderHowto(i) {
