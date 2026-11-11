@@ -466,3 +466,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .howto-steps li { margin: 2px 0; }
 @media (max-height: 700px) { .howto-steps { font-size: 14px; line-height: 1.45; } }
 .avatar.rank-platinum { border-color: #dff3ff; box-shadow: 0 0 0 1px #7fa7c4, 0 0 12px rgba(180,225,255,0.95); }
+.feedback-ask { background: #fffaf0; color: #3b2614; border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.feedback-ask p { font-size: 15px; line-height: 1.4; }
+.feedback-ask small { color: #7a6a52; }
+.feedback-ask .btn { color: #3b2614; border-color: #c98a78; background: #ffe9ef; }

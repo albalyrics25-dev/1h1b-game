@@ -452,10 +452,13 @@
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const unlockMsg = rankMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
+    const games = st.battle.win + st.battle.lose + st.battle.draw;
+    let askFeedback = false;
+    try { askFeedback = !!FEEDBACK_URL && games >= 3 && localStorage.getItem(ASK_KEY) !== "done"; if (askFeedback) localStorage.setItem(ASK_KEY, "done"); } catch (e) {  }
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
       rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
       S.opp, S.opp.lines[oppView] || "",
-      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome] });
+      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome], ask: askFeedback });
   }
 
   function celebrate(fx) {
@@ -482,7 +485,9 @@
     setTimeout(() => { box.innerHTML = ""; }, 5200);
   }
 
+  const ASK_KEY = "lblia_1h1b_feedback_ask_v1";
   function showResult(title, detail, fairyLine, opp, oppLine, fx) {
+    $("feedback-ask").hidden = !(fx && fx.ask);
     $("result-title").textContent = title;
     const logo = fx && fx.logo;
     $("result-logo").hidden = !logo;
