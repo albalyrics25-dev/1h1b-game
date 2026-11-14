@@ -470,3 +470,12 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .feedback-ask p { font-size: 15px; line-height: 1.4; }
 .feedback-ask small { color: #7a6a52; }
 .feedback-ask .btn { color: #3b2614; border-color: #c98a78; background: #ffe9ef; }
+
+.room-view .bond-meter { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); z-index: 11; max-width: 94%;
+  background: rgba(255,250,240,0.92); color: #7a3b52; border: 1.5px solid #f29bb8; border-radius: 999px; padding: 2px 10px;
+  font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.partner-card .pbond { font-size: 12px; color: #f29bb8; }
+.room-view .room-fairy.sparkle img { animation: fairy-glow 2.2s ease-in-out infinite; }
+@keyframes fairy-glow { 0%, 100% { filter: drop-shadow(0 0 4px rgba(255,240,180,0.7)) drop-shadow(0 3px 4px rgba(0,0,0,0.35)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,236,150,1)) drop-shadow(0 0 28px rgba(246,211,107,0.8)); } }
+@media (prefers-reduced-motion: reduce) { .room-view .room-fairy.sparkle img { animation: none; filter: drop-shadow(0 0 10px rgba(255,236,150,0.9)); } }

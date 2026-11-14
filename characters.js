@@ -297,7 +297,21 @@
   const ACTIVE = OPPONENTS.filter((o) => o.ready !== false || SHOW_DRAFT);
   OPPONENTS.length = 0; ACTIVE.forEach((o) => OPPONENTS.push(o));
 
-  const api = { FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
+  const BOND_REWARDS = [
+    { at: 5, id: "wand", name: "魔法の杖（宝箱から）", ready: false },
+    { at: 15, id: "secret", name: "特別なセリフ", ready: true },
+    { at: 30, id: "title", name: "称号「相棒」", ready: true },
+    { at: 50, id: "sparkle", name: "キラキラ光る", ready: true },
+    { at: 100, id: "figure", name: "フィギュア", ready: false }
+  ];
+  const BOND_SECRET = {
+    flare: "実はな、最初は緊張してたんだ。でも{名前}と一緒だと、毎回燃えられる！ありがとな！",
+    aqua: "{名前}と過ごす時間、とても落ち着くんだ。これからも、そばにいさせてね",
+    aeru: "ぼ、僕ね…{名前}のパートナーになれて、ほんとに、ほんとに嬉しいんだ…！",
+    terra: "{名前}が毎日積み重ねてきたこと、ちゃんと見てたぞ。お前は俺の自慢だ！"
+  };
+
+  const api = { BOND_REWARDS, BOND_SECRET, FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);

@@ -61,7 +61,10 @@
     return say(p, scene, base);
   }
   function timeScene() { const h = new Date().getHours(); return h >= 5 && h <= 10 ? "morning" : h >= 11 && h <= 17 ? "noon" : "night"; }
-  function greet(p) { return Math.random() < 0.35 ? say(p, timeScene()) : say(p, "greet", p.greeting); }
+  function greet(p) {
+    if (hasBond(p.id, "secret") && Math.random() < 0.15) return (C.BOND_SECRET[p.id] || "").replace(/\{名前\}/g, playerName() || "あなた");
+    return Math.random() < 0.35 ? say(p, timeScene()) : say(p, "greet", p.greeting);
+  }
   const LAST_VISIT_KEY = "lblia_1h1b_last_visit_v1";
   const longTimeNoSee = (() => {
     let last = 0; try { last = Number(localStorage.getItem(LAST_VISIT_KEY)) || 0; localStorage.setItem(LAST_VISIT_KEY, String(Date.now())); } catch (e) {  }
@@ -71,6 +74,9 @@
   let backFromPlay = false;
 
   function rankFor(wins) { let r = C.RANKS[0]; C.RANKS.forEach((x) => { if (wins >= x.min) r = x; }); return r; }
+  function bondCount(id, st) { st = st || loadStats(); return ((st.bond || {})[id]) || 0; }
+  function bondNext(n) { return C.BOND_REWARDS.find((r) => r.at > n) || null; }
+  function hasBond(id, rewardId, st) { const r = C.BOND_REWARDS.find((x) => x.id === rewardId); return !!r && r.ready && bondCount(id, st) >= r.at; }
   function nextRank(wins) { return C.RANKS.find((x) => x.min > wins) || null; }
   function schoolPoints(st) {
     st = st || loadStats(); let pts = 0;
@@ -439,6 +445,8 @@
     st.streak = outcome === "win" ? (st.streak || 0) + 1 : 0;
     const rec = st.byOpp[S.opp.id] || (st.byOpp[S.opp.id] = { win: 0, lose: 0, draw: 0 });
     rec[outcome]++;
+    const pf = partner(); st.bond = st.bond || {}; st.bond[pf.id] = (st.bond[pf.id] || 0) + 1;
+    const bondReward = C.BOND_REWARDS.find((r) => r.at === st.bond[pf.id]);
     saveStats(st);
     const newly = C.OPPONENTS.filter((o) => isUnlocked(o, st) && !before.includes(o.id));
     setTimeout(() => { if (outcome === "draw") SND.play("draw"); else if (SND.isEnabled()) BGM.jingle(outcome); }, 350);
@@ -451,12 +459,16 @@
     const rankBefore = rankFor(ptsNow - ptsGot), rankNow = rankFor(ptsNow);
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
-    const unlockMsg = rankMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
+    const bondMsg = !bondReward ? "" : bondReward.ready
+      ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: "フィギュアをもらった！", wand: "魔法の杖をもらった！" }[bondReward.id]}`
+      : `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${bondReward.name}は、もうすぐ届くよ`;
+    if (bondMsg && bondReward.ready && !rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
+    const unlockMsg = rankMsg + bondMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
     const games = st.battle.win + st.battle.lose + st.battle.draw;
     let askFeedback = false;
     try { askFeedback = !!FEEDBACK_URL && games >= 3 && localStorage.getItem(ASK_KEY) !== "done"; if (askFeedback) localStorage.setItem(ASK_KEY, "done"); } catch (e) {  }
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
-      rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
+      bondReward && bondReward.id === "secret" ? (C.BOND_SECRET[pf.id] || "").replace(/\{名前\}/g, playerName() || "あなた") : rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
       S.opp, S.opp.lines[oppView] || "",
       { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome], ask: askFeedback });
   }
@@ -555,6 +567,9 @@
     });
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
+    const bn = bondCount(p.id), nx = bondNext(bn);
+    $("bond-meter").textContent = `💗 ${p.name}との絆 ${bn}回` + (nx ? `｜あと${nx.at - bn}回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "｜ぜんぶ集めた！");
+    $("room-fairy").classList.toggle("sparkle", hasBond(p.id, "sparkle"));
     const guide = !practiceDone();
     let line;
     if (guide) line = ROOM_LINES.guide;
@@ -573,6 +588,7 @@
     face.className = face.className.replace(/\brank-\S+/g, "").trim() + " rank-" + r.frame;
     $("profile-name").textContent = playerName() || "名前なし";
     $("profile-rank").textContent = "🎓 " + r.name + (r.badge ? " " + r.badge : "");
+    const pp = partner(); if (hasBond(pp.id, "title")) $("profile-rank").textContent += `・${pp.name}の相棒`;
     const from = r.min, to = nx ? nx.min : r.min;
     $("profile-bar-fill").style.width = nx ? Math.round(((wins - from) / (to - from)) * 100) + "%" : "100%";
     $("profile-next").textContent = nx ? `「${nx.name}」まで あと${nx.min - wins}点` : `成績${wins}点・最高の称号！`;
@@ -598,6 +614,7 @@
     const elem = document.createElement("span"); elem.className = "pelem"; elem.textContent = `${f.element}の妖精`;
     const trait = document.createElement("span"); trait.className = "ptrait"; trait.textContent = f.locked ? f.unlock : f.trait;
     b.append(av, name, elem, trait);
+    if (!f.locked) { const bd = document.createElement("span"); bd.className = "pbond"; bd.textContent = `💗 絆 ${bondCount(f.id)}回`; b.append(bd); }
     if (f.locked) b.disabled = true;
     else b.addEventListener("click", () => { savePartner(f.id); SND.play("select"); setupFlow ? setupNext() : show("home"); });
     return b;
