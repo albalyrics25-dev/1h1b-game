@@ -238,26 +238,26 @@
       image: "assets/opp_souma_icon.webp", icon: "assets/opp_souma_icon.webp", iconFace: FACE_SOUMA
     },
     {
-      id: "soft", name: "花音", reading: "", level: "soft", levelLabel: "とてもやさしい", mark: "花", color: "#b9a0e0",
-      profile: "ソフトな女の子。いちばんやさしい相手で、最初から選べる（社長決定 2026-11-14。読み・人物像・セリフはあお副社長待ち）",
-      lines: { win: "", lose: "", draw: "" }, image: "", ready: false
+      id: "soft", name: "花音", reading: "かのん", level: "soft", levelLabel: "とてもやさしい", mark: "花", color: "#b9a0e0",
+      profile: "おっとり優しく、初心者を迎える女の子",
+      lines: { win: "わぁ、勝てちゃった。もう一回遊ぼう？", lose: "すごいね！次も一緒に遊んでね", draw: "同じだったね。なんだか嬉しいな" }, image: "assets/opp_soft_icon.webp", icon: "assets/opp_soft_icon.webp", iconFace: { x: 0.5, y: 0.5, zoom: 1.08, aspect: 1 }, ready: true
     },
     {
-      id: "mid", name: "律", reading: "", level: "mid", levelLabel: "ふつうの手前", mark: "律", color: "#8cc49a",
-      profile: "蒼真の手前の強さ（髪の色を直してもらい中）",
-      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      id: "mid", name: "律", reading: "りつ", level: "mid", levelLabel: "ふつうの手前", mark: "律", color: "#8cc49a",
+      profile: "明るい負けず嫌いの男の子",
+      lines: { win: "よっしゃ！次も負けないぜ！", lose: "くっそ〜！次は絶対勝つからな！", draw: "いい勝負！次こそ決着つけようぜ！" }, image: "assets/opp_mid_icon.webp", icon: "assets/opp_mid_icon.webp", iconFace: { x: 0.5, y: 0.5, zoom: 1.08, aspect: 1 }, ready: true,
       unlock: { opponent: "hinata", wins: 2, text: "陽向に2回勝つと登場" }
     },
     {
-      id: "rival", name: "澪", reading: "", level: "rival", levelLabel: "ふつう", mark: "澪", color: "#4a4f8f",
-      profile: "蒼真と同じくらいの強さ。考え方が少しちがう",
-      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      id: "rival", name: "澪", reading: "みお", level: "rival", levelLabel: "ふつう", mark: "澪", color: "#4a4f8f",
+      profile: "冷静な分析家の女の子",
+      lines: { win: "あなたの考え方、少し読めたわ", lose: "なるほど。私の予測を超えたのね", draw: "互角ね。次は違う手を試すわ" }, image: "assets/opp_rival_icon.webp", icon: "assets/opp_rival_icon.webp", iconFace: { x: 0.5, y: 0.5, zoom: 1.08, aspect: 1 }, ready: true,
       unlock: { opponent: "souma", wins: 1, text: "蒼真に1回勝つと登場" }
     },
     {
-      id: "strong", name: "朔夜", reading: "", level: "strong", levelLabel: "つよい", mark: "朔", color: "#a8323e",
-      profile: "覚醒の手前の強さ（髪の色を直してもらい中）",
-      lines: { win: "", lose: "", draw: "" }, image: "", ready: false,
+      id: "strong", name: "朔夜", reading: "さくや", level: "strong", levelLabel: "つよい", mark: "朔", color: "#a8323e",
+      profile: "寡黙な実力者の男の子",
+      lines: { win: "……まだ、本気じゃないだろう？", lose: "……見事だ。お前の勝ちだ", draw: "……悪くない。また来い" }, image: "assets/opp_strong_icon.webp", icon: "assets/opp_strong_icon.webp", iconFace: { x: 0.5, y: 0.5, zoom: 1.08, aspect: 1 }, ready: true,
       unlock: { opponent: "rival", wins: 2, text: "澪に2回勝つと登場" }
     },
     {
