@@ -650,7 +650,9 @@
       else { opt.textContent = `🔒 ？？？（${o.unlock.text}）`; opt.disabled = true; }
       sel.appendChild(opt);
     });
-    sel.value = prev && !sel.querySelector(`option[value="${prev}"]`).disabled ? prev : "souma";
+    const firstNew = C.OPPONENTS.find((o) => isUnlocked(o, st) && !((st.byOpp[o.id] || {}).win > 0));
+    const prevOpt = prev && sel.querySelector(`option[value="${prev}"]`);
+    sel.value = prevOpt && !prevOpt.disabled ? prev : (firstNew || C.OPPONENTS[0]).id;
   }
   renderOpponentOptions();
 

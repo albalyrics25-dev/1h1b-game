@@ -55,7 +55,7 @@
     easy: { gradual: true, r0: 0.5, rDec: 0.02, step: 8, full: 30 },
     normal: { memory: 2, fullAfter: 10, random: 0 },
     hard: { memory: Infinity, fullAfter: 0, random: 0 },
-    soft: { gradual: true, r0: 0.4, rDec: 0.03, step: 6, full: 20 },
+    soft: { gradual: true, r0: 0.6, rDec: 0.015, step: 10, full: 38 },
     mid: { gradual: true, r0: 0.25, rDec: 0.03, step: 4, full: 14 },
     rival: { memory: 1, fullAfter: 9, random: 0.1 },
     strong: { memory: 3, fullAfter: 8, random: 0.1 }
