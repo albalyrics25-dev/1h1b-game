@@ -80,9 +80,12 @@
   function nextRank(wins) { return C.RANKS.find((x) => x.min > wins) || null; }
   function schoolPoints(st) {
     st = st || loadStats(); let pts = 0;
-    Object.entries(st.byOpp || {}).forEach(([id, r]) => { pts += (r.win || 0) * (C.WIN_POINTS[id] || 1); });
+    Object.entries(st.rankWins || st.byOpp || {}).forEach(([id, r]) => { pts += (typeof r === "number" ? r : (r.win || 0)) * (C.WIN_POINTS[id] || 1); });
     return pts;
   }
+  const DAILY_LIMIT = 10, DAY_START_HOUR = 4;
+  function today() { const d = new Date(Date.now() - DAY_START_HOUR * 3600 * 1000); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
+  function dailyCount(st) { st = st || loadStats(); return st.daily && st.daily.day === today() ? st.daily.count : 0; }
 
   function opponentById(id) { return C.OPPONENTS.find((o) => o.id === id) || C.OPPONENTS[0]; }
   function isUnlocked(o, st) {
@@ -445,8 +448,16 @@
     st.streak = outcome === "win" ? (st.streak || 0) + 1 : 0;
     const rec = st.byOpp[S.opp.id] || (st.byOpp[S.opp.id] = { win: 0, lose: 0, draw: 0 });
     rec[outcome]++;
-    const pf = partner(); st.bond = st.bond || {}; st.bond[pf.id] = (st.bond[pf.id] || 0) + 1;
-    const bondReward = C.BOND_REWARDS.find((r) => r.at === st.bond[pf.id]);
+    if (!st.rankWins) { st.rankWins = {}; Object.entries(st.byOpp).forEach(([id, r]) => { st.rankWins[id] = (r.win || 0) - (id === S.opp.id && outcome === "win" ? 1 : 0); }); }
+    const dayCount = dailyCount(st), counts = dayCount < DAILY_LIMIT;
+    st.daily = { day: today(), count: dayCount + 1 };
+    const pf = partner(); st.bond = st.bond || {};
+    const bondBefore = st.bond[pf.id] || 0;
+    if (counts) {
+      st.bond[pf.id] = bondBefore + (dayCount === 0 ? 2 : 1);
+      if (outcome === "win") st.rankWins[S.opp.id] = (st.rankWins[S.opp.id] || 0) + 1;
+    }
+    const bondReward = C.BOND_REWARDS.find((r) => r.at > bondBefore && r.at <= (st.bond[pf.id] || 0)) || null;
     saveStats(st);
     const newly = C.OPPONENTS.filter((o) => isUnlocked(o, st) && !before.includes(o.id));
     setTimeout(() => { if (outcome === "draw") SND.play("draw"); else if (SND.isEnabled()) BGM.jingle(outcome); }, 350);
@@ -455,7 +466,7 @@
     $("turn-label").textContent = title;
     $("timer").textContent = "⏱ --"; $("timer").classList.remove("danger");
     const oppView = { win: "lose", lose: "win", draw: "draw" }[outcome];
-    const ptsNow = schoolPoints(st), ptsGot = outcome === "win" ? (C.WIN_POINTS[S.opp.id] || 1) : 0;
+    const ptsNow = schoolPoints(st), ptsGot = outcome === "win" && counts ? (C.WIN_POINTS[S.opp.id] || 1) : 0;
     const rankBefore = rankFor(ptsNow - ptsGot), rankNow = rankFor(ptsNow);
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
@@ -463,11 +474,15 @@
       ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: "フィギュアをもらった！", wand: "魔法の杖をもらった！" }[bondReward.id]}`
       : `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${bondReward.name}は、もうすぐ届くよ`;
     if (bondMsg && bondReward.ready && !rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
-    const unlockMsg = rankMsg + bondMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
+    const dailyMsg = !counts ? "\n（今日の絆・称号のご褒美はおしまい。対戦は自由に遊べるよ）"
+      : dayCount === 0 ? `\n☀ 今日はじめての対戦！ ${pf.name}との絆 +2`
+      : dayCount + 1 === DAILY_LIMIT ? `\n🌙 今日のご褒美は${DAILY_LIMIT}回ぶん、たまったよ。続きはまた明日！` : "";
+    const unlockMsg = rankMsg + bondMsg + dailyMsg + newly.map((o) => o.hidden ? `\n🔓 隠しボス「${o.name}」が解放されました！` : `\n✨ 新しい対戦相手「${o.name}」が現れた！`).join("");
     const games = st.battle.win + st.battle.lose + st.battle.draw;
     let askFeedback = false;
     try { askFeedback = !!FEEDBACK_URL && games >= 3 && localStorage.getItem(ASK_KEY) !== "done"; if (askFeedback) localStorage.setItem(ASK_KEY, "done"); } catch (e) {  }
     showResult(title, `${S.opp.name}の数字は ${S.cSecret.join("")}（ラウンド ${S.round}）${unlockMsg}`,
+      counts && dayCount + 1 === DAILY_LIMIT && !bondReward && !rankMsg ? say(pf, "daily_end", "今日はたくさん遊んだね！続きはまた明日！") :
       bondReward && bondReward.id === "secret" ? (C.BOND_SECRET[pf.id] || "").replace(/\{名前\}/g, playerName() || "あなた") : rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
       S.opp, S.opp.lines[oppView] || "",
       { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome], ask: askFeedback });
@@ -568,7 +583,8 @@
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
     const bn = bondCount(p.id), nx = bondNext(bn);
-    $("bond-meter").textContent = `💗 ${p.name}との絆 ${bn}回` + (nx ? `｜あと${nx.at - bn}回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "｜ぜんぶ集めた！");
+    const dc = Math.min(dailyCount(), DAILY_LIMIT);
+    $("bond-meter").textContent = `💗 ${p.name}との絆 ${bn}回` + (nx ? `｜あと${nx.at - bn}回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "｜ぜんぶ集めた！") + `｜今日 ${dc}/${DAILY_LIMIT}`;
     $("room-fairy").classList.toggle("sparkle", hasBond(p.id, "sparkle"));
     const guide = !practiceDone();
     let line;
