@@ -584,7 +584,17 @@
     renderAvatar($("room-fairy"), p, "stand");
     const bn = bondCount(p.id), nx = bondNext(bn);
     const dc = Math.min(dailyCount(), DAILY_LIMIT);
-    $("bond-meter").textContent = `💗 ${p.name}との絆 ${bn}回` + (nx ? `｜あと${nx.at - bn}回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "｜ぜんぶ集めた！") + `｜今日 ${dc}/${DAILY_LIMIT}`;
+    const prevAt = [0].concat(C.BOND_REWARDS.map((r) => r.at)).filter((a) => a <= bn).pop();
+    const pct = nx ? Math.round(((bn - prevAt) / (nx.at - prevAt)) * 100) : 100;
+    const m = $("bond-meter");
+    m.style.setProperty("--fairy", p.color || "#f29bb8");
+    m.style.setProperty("--pct", pct + "%");
+    m.innerHTML = `<span class="bm-heart" aria-hidden="true"><i></i><b>${bn}</b></span>`
+      + `<span class="bm-body"><span class="bm-title">${p.name}との絆</span>`
+      + `<span class="bm-bar"><i></i></span>`
+      + `<span class="bm-next">${nx ? `あと<b>${nx.at - bn}</b>回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "ぜんぶ集めた！"}</span></span>`
+      + `<span class="bm-today" title="今日のご褒美の回数">☀<br>${dc}/${DAILY_LIMIT}</span>`;
+    m.setAttribute("aria-label", `${p.name}との絆 ${bn}回。` + (nx ? `あと${nx.at - bn}回で${nx.name}。` : "") + `今日 ${dc}/${DAILY_LIMIT}`);
     $("room-fairy").classList.toggle("sparkle", hasBond(p.id, "sparkle"));
     const guide = !practiceDone();
     let line;
