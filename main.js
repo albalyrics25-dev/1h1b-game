@@ -16,7 +16,7 @@
   }
   let partnerId = loadPartnerId();
   function partner() {
-    return C.FAIRIES.find((f) => f.id === partnerId && !f.locked) || C.FAIRIES[0];
+    return C.FAIRIES.find((f) => f.id === partnerId && !isLocked(f)) || C.FAIRIES[0];
   }
   function savePartner(id) {
     partnerId = id;
@@ -94,6 +94,8 @@
     return !!rec && rec.win >= o.unlock.wins;
   }
 
+  function isLocked(f) { return !!f.locked && !((loadStats().fairy || {})[f.id]); }
+
   function renderAvatar(el, ch, mode = "face") {
     el.style.setProperty("--c", ch.color);
     el.textContent = "";
@@ -159,6 +161,7 @@
     if (name === "room") renderRoom();
     if (name === "partner") renderPartner();
     if (name === "avatar") renderAvatarChoice();
+    if (name === "collection") renderCollection();
     if (name === "name") { $("name-input").value = playerName(); $("name-msg").textContent = ""; }
     if (name === "howto") renderHowto(0);
     if (name === "battle-setup") { $("chest-remind").hidden = !chestWaiting(); renderOpponentOptions(); secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
@@ -472,7 +475,7 @@
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const bondMsg = !bondReward ? "" : bondReward.ready
-      ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: "フィギュアをもらった！", wand: "寮の部屋に宝箱が届いたよ！" }[bondReward.id]}`
+      ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: `${pf.name}のフィギュアをもらった！寮の部屋とコレクションに飾ったよ`, wand: "寮の部屋に宝箱が届いたよ！" }[bondReward.id]}`
       : `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${bondReward.name}は、もうすぐ届くよ`;
     if (bondMsg && bondReward.ready && !rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const dailyMsg = !counts ? "\n（今日の絆・称号のご褒美はおしまい。対戦は自由に遊べるよ）"
@@ -585,6 +588,7 @@
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
     renderWandAndChest(p);
+    const fig = $("room-figure"); fig.hidden = !hasBond(p.id, "figure"); if (!fig.hidden) { fig.src = C.FIGURES[p.id]; fig.alt = `${p.name}のフィギュア`; }
     $("bond-meter").classList.toggle("hint", !bondSeen());
     const bn = bondCount(p.id), nx = bondNext(bn);
     const dc = Math.min(dailyCount(), DAILY_LIMIT);
@@ -648,6 +652,23 @@
     }, 1700);
   });
 
+  function renderCollection() {
+    const box = $("figure-shelf"); box.innerHTML = "";
+    C.FAIRIES.filter((f) => !isLocked(f) && C.FIGURES[f.id]).forEach((f) => {
+      const have = hasBond(f.id, "figure"), n = bondCount(f.id);
+      const cell = document.createElement("div"); cell.className = "figure-cell" + (have ? " have" : "");
+      const img = document.createElement("img"); img.src = C.FIGURES[f.id]; img.alt = have ? `${f.name}のフィギュア` : "まだ持っていないフィギュア"; img.draggable = false;
+      const cap = document.createElement("p"); cap.className = "figure-cap";
+      cap.textContent = have ? `${f.name}` : `？？？　絆 ${n}/100`;
+      cell.append(img, cap); box.appendChild(cell);
+    });
+    C.FAIRIES.filter((f) => isLocked(f) || !C.FIGURES[f.id]).forEach(() => {
+      const cell = document.createElement("div"); cell.className = "figure-cell mystery";
+      cell.innerHTML = `<span class="figure-q" aria-hidden="true">？</span><p class="figure-cap">まだ出会っていない妖精</p>`;
+      box.appendChild(cell);
+    });
+  }
+
   function bondCard(f, opts) {
     const bn = bondCount(f.id), nx = bondNext(bn);
     const prevAt = [0].concat(C.BOND_REWARDS.map((r) => r.at)).filter((a) => a <= bn).pop();
@@ -669,7 +690,7 @@
   }
   function fillBondPanel(box) {
     box.innerHTML = "";
-    C.FAIRIES.filter((f) => !f.locked).forEach((f) => {
+    C.FAIRIES.filter((f) => !isLocked(f)).forEach((f) => {
       const card = bondCard(f, { current: f.id === partnerId });
       const nx = bondNext(bondCount(f.id));
       const nt = card.querySelector(".bc-next");
@@ -702,11 +723,11 @@
     b.className = "partner-card" + (f.id === partnerId ? " selected" : "");
     b.type = "button";
     const av = document.createElement("span"); av.className = "avatar"; renderAvatar(av, f, "stand");
-    const name = document.createElement("span"); name.className = "pname"; name.textContent = (f.locked ? "🔒 " : "") + f.name;
+    const name = document.createElement("span"); name.className = "pname"; name.textContent = (isLocked(f) ? "🔒 " : "") + f.name;
     const elem = document.createElement("span"); elem.className = "pelem"; elem.textContent = `${f.element}の妖精`;
-    const trait = document.createElement("span"); trait.className = "ptrait"; trait.textContent = f.locked ? f.unlock : f.trait;
+    const trait = document.createElement("span"); trait.className = "ptrait"; trait.textContent = isLocked(f) ? f.unlock : f.trait;
     b.append(av, name, elem, trait);
-    if (f.locked) b.disabled = true;
+    if (isLocked(f)) b.disabled = true;
     else b.addEventListener("click", () => { savePartner(f.id); SND.play("select"); setupFlow ? setupNext() : show("home"); });
     return b;
   }
@@ -744,7 +765,7 @@
   function renderPartner() {
     const grid = $("partner-grid"), locked = $("partner-locked");
     grid.innerHTML = ""; locked.innerHTML = "";
-    C.FAIRIES.forEach((f) => (f.locked ? locked : grid).appendChild(partnerCard(f)));
+    C.FAIRIES.forEach((f) => (isLocked(f) ? locked : grid).appendChild(partnerCard(f)));
     fillBondPanel($("bond-panel"));
     $("partner-back").hidden = !partnerId;
   }
@@ -812,7 +833,7 @@
     $("howto-prev").textContent = i === 0 ? "とばす" : "もどる";
     $("howto-next").textContent = i === HOWTO.length - 1 ? "はじめる！" : "つぎへ";
     const box = $("howto-fairies"); box.innerHTML = "";
-    C.FAIRIES.filter((f) => !f.locked).forEach((f) => { const a = document.createElement("span"); a.className = "avatar"; renderAvatar(a, f, "stand"); box.appendChild(a); });
+    C.FAIRIES.filter((f) => !isLocked(f)).forEach((f) => { const a = document.createElement("span"); a.className = "avatar"; renderAvatar(a, f, "stand"); box.appendChild(a); });
   }
   function finishHowto() {
     try { localStorage.setItem(HOWTO_KEY, "seen"); } catch (e) {  }

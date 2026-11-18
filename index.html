@@ -50,6 +50,7 @@
         <span class="room-bubble" id="room-bubble"></span>
         <span class="avatar room-fairy" id="room-fairy" aria-hidden="true"></span>
         <img class="room-wand" id="room-wand" alt="" hidden draggable="false">
+        <img class="room-figure" id="room-figure" alt="" hidden draggable="false">
         <button class="room-chest" id="room-chest" type="button" hidden aria-label="宝箱を開ける">
           <img class="chest-closed" src="assets/chest_closed.webp" alt="" draggable="false">
           <img class="chest-open" src="assets/chest_open.webp" alt="" draggable="false">
@@ -78,7 +79,7 @@
         <div class="row room-row locked-row">
           <button class="btn ghost small" type="button" disabled>👗<br>着せ替え<br><small>🔒準備中</small></button>
           <button class="btn ghost small" type="button" disabled>🛋<br>模様替え<br><small>🔒準備中</small></button>
-          <button class="btn ghost small" type="button" disabled>📖<br>コレクション<br><small>🔒準備中</small></button>
+          <button class="btn small" type="button" data-go="collection">📖<br>コレクション</button>
         </div>
         <div class="row room-row">
           <button class="btn ghost small" data-go="avatar">🧑 生徒を変える</button>
@@ -126,6 +127,13 @@
         <button class="btn ghost" id="name-skip" type="button">あとで決める</button>
         <button class="btn primary" id="name-ok" type="button">決定</button>
       </div>
+    </section>
+
+    <section class="screen" id="screen-collection" hidden>
+      <h2>📖 コレクション</h2>
+      <p class="note-strong">妖精との絆が100回になると、その妖精のフィギュアがもらえるよ！</p>
+      <div class="figure-shelf" id="figure-shelf"></div>
+      <button class="btn" data-go="home" type="button">もどる</button>
     </section>
 
     <section class="screen" id="screen-rules" hidden>

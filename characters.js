@@ -30,13 +30,13 @@
       id: "luce", name: "ルーチェ", element: "光", gender: "", trait: "気品溢れる", mark: "✨", color: "#f0d27a",
       greeting: "あなたならできます",
       lines: { win: "お見事です。素晴らしい勝利ですね", lose: "次の挑戦も応援しています", draw: "互いに立派な戦いでした", correct: "素晴らしいお答えです" },
-      image: "", locked: true, unlock: "全国ランク到達で解放"
+      image: "assets/fairy_luce_stand.webp", icon: "assets/fairy_luce_icon.webp", face: { x: 0.55, y: 0.3, zoom: 1.7 }, locked: true, unlock: "ある条件で舞い降りる（準備中）"
     },
     {
       id: "noir", name: "ノワール", element: "闇", gender: "", trait: "無愛想だけど心が綺麗", mark: "🌙", color: "#9b7fd1",
       greeting: "……いいけど",
       lines: { win: "……やるな", lose: "……次がある", draw: "……悪くない勝負だ", correct: "……正解だ。頑張ったな" },
-      image: "", locked: true, unlock: "100勝達成で解放"
+      image: "assets/fairy_noir_stand.webp", icon: "assets/fairy_noir_icon.webp", face: { x: 0.5, y: 0.32, zoom: 1.7 }, locked: true, unlock: "ある条件で舞い降りる（準備中）"
     }
   ];
 
@@ -309,7 +309,9 @@
     flare: { main: "#e8553a", light: "#ffb08a", bg: "#fff1ea", ink: "#9a3a22", border: "#f7b79c" },
     aqua: { main: "#2f86d6", light: "#8cc8f5", bg: "#eef7ff", ink: "#225a8f", border: "#a9d3f5" },
     aeru: { main: "#2fa66e", light: "#8fdcb3", bg: "#eefaf3", ink: "#22704b", border: "#a6e0c1" },
-    terra: { main: "#b8862e", light: "#f0cf7a", bg: "#fff8e8", ink: "#7a5418", border: "#ead197" }
+    terra: { main: "#b8862e", light: "#f0cf7a", bg: "#fff8e8", ink: "#7a5418", border: "#ead197" },
+    luce: { main: "#d4a72c", light: "#f7e08f", bg: "#fffbea", ink: "#7a5e12", border: "#f0dc98" },
+    noir: { main: "#7d55c7", light: "#c3a8f0", bg: "#f5f0ff", ink: "#4b2f80", border: "#cdb8f0" }
   };
 
   const BOND_FRAME = {
@@ -319,15 +321,15 @@
     terra: { image: "assets/bond_frame_terra.webp", w: 842, h: 402, dy: -1.5 }
   };
 
-  const WANDS = { flare: "assets/wand_flare.webp", aqua: "assets/wand_aqua.webp", aeru: "assets/wand_aeru.webp", terra: "assets/wand_terra.webp" };
-  const WAND_POS = { flare: { x: 55, bottom: 9, h: 24, r: 8 }, aqua: { x: 55, bottom: 9, h: 24, r: 8 }, aeru: { x: 55, bottom: 9, h: 24, r: 8 }, terra: { x: 56, bottom: 9, h: 24, r: 8 } };
+  const WANDS = { flare: "assets/wand_flare.webp", aqua: "assets/wand_aqua.webp", aeru: "assets/wand_aeru.webp", terra: "assets/wand_terra.webp", luce: "assets/wand_luce.webp", noir: "assets/wand_noir.webp" };
+  const WAND_POS = { flare: { x: 55, bottom: 9, h: 24, r: 8 }, aqua: { x: 55, bottom: 9, h: 24, r: 8 }, aeru: { x: 55, bottom: 9, h: 24, r: 8 }, terra: { x: 56, bottom: 9, h: 24, r: 8 }, luce: { x: 56, bottom: 9, h: 24, r: 8 }, noir: { x: 56, bottom: 9, h: 24, r: 8 } };
 
   const BOND_REWARDS = [
     { at: 5, id: "wand", name: "魔法の杖（宝箱から）", short: "魔法の杖", ready: true },
     { at: 15, id: "secret", name: "特別なセリフ", short: "特別なセリフ", ready: true },
     { at: 30, id: "title", name: "称号「相棒」", short: "相棒の称号", ready: true },
     { at: 50, id: "sparkle", name: "キラキラ光る", short: "キラキラ", ready: true },
-    { at: 100, id: "figure", name: "フィギュア", short: "フィギュア", ready: false }
+    { at: 100, id: "figure", name: "フィギュア", short: "フィギュア", ready: true }
   ];
   const BOND_SECRET = {
     flare: "実はな、最初は緊張してたんだ。でも{名前}と一緒だと、毎回燃えられる！ありがとな！",
@@ -336,7 +338,9 @@
     terra: "{名前}が毎日積み重ねてきたこと、ちゃんと見てたぞ。お前は俺の自慢だ！"
   };
 
-  const api = { WAND_POS, WANDS, BOND_FRAME, BOND_THEME, BOND_REWARDS, BOND_SECRET, FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
+  const FIGURES = { flare: "assets/figure_flare.webp", aqua: "assets/figure_aqua.webp", aeru: "assets/figure_aeru.webp", terra: "assets/figure_terra.webp", luce: "assets/figure_luce.webp", noir: "assets/figure_noir.webp" };
+
+  const api = { FIGURES, WAND_POS, WANDS, BOND_FRAME, BOND_THEME, BOND_REWARDS, BOND_SECRET, FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);
