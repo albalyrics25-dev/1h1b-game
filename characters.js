@@ -12,7 +12,7 @@
       id: "aqua", name: "アクア", element: "水", gender: "男", trait: "優しい", mark: "💧", color: "#5aa8e8",
       greeting: "焦らなくていいからね",
       lines: { win: "やったね、おめでとう", lose: "大丈夫、次があるよ", draw: "どっちも頑張ったね", correct: "正解だよ、すごいね" },
-      image: "assets/fairy_aqua_stand.webp", icon: "assets/fairy_aqua_icon.webp", face: { x: 0.46, y: 0.31, zoom: 1.7 }, locked: false
+      image: "assets/fairy_aqua_stand.webp", icon: "assets/fairy_aqua_icon.webp", iconShift: "translateY(-14%) scale(1.3)", face: { x: 0.46, y: 0.31, zoom: 1.7 }, locked: false
     },
     {
       id: "aeru", name: "エアル", element: "風", gender: "女", trait: "オドオド", mark: "🍃", color: "#5cc59a",
@@ -42,6 +42,7 @@
 
   const TALK = {
     "flare": {
+    "wand": ["うおお！炎の杖だ！これでもっと燃えられるぞ！"],
     "daily_end": ["今日はよく燃えたな！続きはまた明日だ！"],
       "greet": [
         "今日も全力でいくぞ！",
@@ -88,6 +89,7 @@
       ]
     },
     "aqua": {
+    "wand": ["きれいな水の杖…ありがとう。大切にするね"],
     "daily_end": ["今日はたくさん遊んだね。続きはまた明日ね"],
       "greet": [
         "今日もいっしょにがんばろう",
@@ -132,6 +134,7 @@
       ]
     },
     "aeru": {
+    "wand": ["ぼ、僕に…？風の杖…！う、うれしい…！"],
     "daily_end": ["きょ、今日はいっぱい遊んだね…また明日も、会えるよね…？"],
       "greet": [
         "き、今日もよろしくね…",
@@ -176,6 +179,7 @@
       ]
     },
     "terra": {
+    "wand": ["大地の杖か！積み重ねの証だな、ありがとう！"],
     "daily_end": ["今日の積み重ねはここまでだ！明日もコツコツいこう！"],
       "greet": [
         "今日も一歩ずつだ！",
@@ -301,12 +305,29 @@
   const ACTIVE = OPPONENTS.filter((o) => o.ready !== false || SHOW_DRAFT);
   OPPONENTS.length = 0; ACTIVE.forEach((o) => OPPONENTS.push(o));
 
+  const BOND_THEME = {
+    flare: { main: "#e8553a", light: "#ffb08a", bg: "#fff1ea", ink: "#9a3a22", border: "#f7b79c" },
+    aqua: { main: "#2f86d6", light: "#8cc8f5", bg: "#eef7ff", ink: "#225a8f", border: "#a9d3f5" },
+    aeru: { main: "#2fa66e", light: "#8fdcb3", bg: "#eefaf3", ink: "#22704b", border: "#a6e0c1" },
+    terra: { main: "#b8862e", light: "#f0cf7a", bg: "#fff8e8", ink: "#7a5418", border: "#ead197" }
+  };
+
+  const BOND_FRAME = {
+    flare: { image: "assets/bond_frame_flare.webp", w: 837, h: 412, dy: 0 },
+    aqua: { image: "assets/bond_frame_aqua.webp", w: 838, h: 412, dy: 0 },
+    aeru: { image: "assets/bond_frame_aeru.webp", w: 845, h: 402, dy: -1.5 },
+    terra: { image: "assets/bond_frame_terra.webp", w: 842, h: 402, dy: -1.5 }
+  };
+
+  const WANDS = { flare: "assets/wand_flare.webp", aqua: "assets/wand_aqua.webp", aeru: "assets/wand_aeru.webp", terra: "assets/wand_terra.webp" };
+  const WAND_POS = { flare: { x: 55, bottom: 9, h: 24, r: 8 }, aqua: { x: 55, bottom: 9, h: 24, r: 8 }, aeru: { x: 55, bottom: 9, h: 24, r: 8 }, terra: { x: 56, bottom: 9, h: 24, r: 8 } };
+
   const BOND_REWARDS = [
-    { at: 5, id: "wand", name: "魔法の杖（宝箱から）", ready: false },
-    { at: 15, id: "secret", name: "特別なセリフ", ready: true },
-    { at: 30, id: "title", name: "称号「相棒」", ready: true },
-    { at: 50, id: "sparkle", name: "キラキラ光る", ready: true },
-    { at: 100, id: "figure", name: "フィギュア", ready: false }
+    { at: 5, id: "wand", name: "魔法の杖（宝箱から）", short: "魔法の杖", ready: true },
+    { at: 15, id: "secret", name: "特別なセリフ", short: "特別なセリフ", ready: true },
+    { at: 30, id: "title", name: "称号「相棒」", short: "相棒の称号", ready: true },
+    { at: 50, id: "sparkle", name: "キラキラ光る", short: "キラキラ", ready: true },
+    { at: 100, id: "figure", name: "フィギュア", short: "フィギュア", ready: false }
   ];
   const BOND_SECRET = {
     flare: "実はな、最初は緊張してたんだ。でも{名前}と一緒だと、毎回燃えられる！ありがとな！",
@@ -315,7 +336,7 @@
     terra: "{名前}が毎日積み重ねてきたこと、ちゃんと見てたぞ。お前は俺の自慢だ！"
   };
 
-  const api = { BOND_REWARDS, BOND_SECRET, FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
+  const api = { WAND_POS, WANDS, BOND_FRAME, BOND_THEME, BOND_REWARDS, BOND_SECRET, FAIRIES, OPPONENTS, REVEAL_LINE, FURNITURE, PLAYERS, RANKS, WIN_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.H1B_CHARS = api;
 })(typeof window !== "undefined" ? window : this);

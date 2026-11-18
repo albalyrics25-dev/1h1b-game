@@ -110,6 +110,7 @@
         img.style.top = 50 - f.y * f.zoom * 100 * f.aspect + "%";
       } else if (mode === "face" && ch.icon) {
         img.src = ch.icon; img.className = "icon";
+        if (ch.iconShift) img.style.transform = ch.iconShift;
       } else if (mode === "face" && ch.face) {
         const f = ch.face, aspect = 724 / 543;
         img.className = "face";
@@ -471,7 +472,7 @@
     const rankMsg = rankNow !== rankBefore ? `\n🎓 「${rankNow.name}」に進級しました！` : "";
     if (rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const bondMsg = !bondReward ? "" : bondReward.ready
-      ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: "フィギュアをもらった！", wand: "魔法の杖をもらった！" }[bondReward.id]}`
+      ? `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${{ secret: `${pf.name}が特別な話をしてくれた！`, title: `称号「${pf.name}の相棒」をもらった！`, sparkle: `${pf.name}がキラキラ光るようになった！`, figure: "フィギュアをもらった！", wand: "寮の部屋に宝箱が届いたよ！" }[bondReward.id]}`
       : `\n💗 ${pf.name}との絆が${bondReward.at}回に！ ${bondReward.name}は、もうすぐ届くよ`;
     if (bondMsg && bondReward.ready && !rankMsg && !newly.length) setTimeout(() => SND.play("correct"), 1300);
     const dailyMsg = !counts ? "\n（今日の絆・称号のご褒美はおしまい。対戦は自由に遊べるよ）"
@@ -582,24 +583,19 @@
     });
     const p = partner();
     renderAvatar($("room-fairy"), p, "stand");
+    renderWandAndChest(p);
+    $("bond-meter").classList.toggle("hint", !bondSeen());
     const bn = bondCount(p.id), nx = bondNext(bn);
     const dc = Math.min(dailyCount(), DAILY_LIMIT);
-    const prevAt = [0].concat(C.BOND_REWARDS.map((r) => r.at)).filter((a) => a <= bn).pop();
-    const pct = nx ? Math.round(((bn - prevAt) / (nx.at - prevAt)) * 100) : 100;
-    const m = $("bond-meter");
-    m.style.setProperty("--fairy", p.color || "#f29bb8");
-    m.style.setProperty("--pct", pct + "%");
-    m.innerHTML = `<span class="bm-heart" aria-hidden="true"><i></i><b>${bn}</b></span>`
-      + `<span class="bm-body"><span class="bm-title">${p.name}との絆</span>`
-      + `<span class="bm-bar"><i></i></span>`
-      + `<span class="bm-next">${nx ? `あと<b>${nx.at - bn}</b>回で ${nx.name}${nx.ready ? "" : "（準備中）"}` : "ぜんぶ集めた！"}</span></span>`
-      + `<span class="bm-today" title="今日のご褒美の回数">☀<br>${dc}/${DAILY_LIMIT}</span>`;
-    m.setAttribute("aria-label", `${p.name}との絆 ${bn}回。` + (nx ? `あと${nx.at - bn}回で${nx.name}。` : "") + `今日 ${dc}/${DAILY_LIMIT}`);
+    const m = $("bond-meter"); m.innerHTML = "";
+    m.appendChild(bondCard(p, { compact: true, tag: "span" }));
+    const td = document.createElement("span"); td.className = "bm-today"; td.textContent = `☀${dc}/${DAILY_LIMIT}`; m.appendChild(td);
     $("room-fairy").classList.toggle("sparkle", hasBond(p.id, "sparkle"));
     const guide = !practiceDone();
     let line;
     if (guide) line = ROOM_LINES.guide;
     else if (longTimeNoSee && !longTimeShown) { longTimeShown = true; line = sayNamed(p, "longtime", p.greeting); }
+    else if (!bondSeen() && Math.random() < 0.4) line = "みんなとの絆は、右上のカードをタップすると見られるよ！";
     else if (backFromPlay) line = say(p, "back");
     else line = greet(p);
     backFromPlay = false;
@@ -614,11 +610,78 @@
     face.className = face.className.replace(/\brank-\S+/g, "").trim() + " rank-" + r.frame;
     $("profile-name").textContent = playerName() || "名前なし";
     $("profile-rank").textContent = "🎓 " + r.name + (r.badge ? " " + r.badge : "");
-    const pp = partner(); if (hasBond(pp.id, "title")) $("profile-rank").textContent += `・${pp.name}の相棒`;
+    const pp = partner(), mate = $("profile-mate");
+    mate.hidden = !hasBond(pp.id, "title"); mate.textContent = `🤝 ${pp.name}の相棒`;
     const from = r.min, to = nx ? nx.min : r.min;
     $("profile-bar-fill").style.width = nx ? Math.round(((wins - from) / (to - from)) * 100) + "%" : "100%";
-    $("profile-next").textContent = nx ? `「${nx.name}」まで あと${nx.min - wins}点` : `成績${wins}点・最高の称号！`;
+    $("profile-next").textContent = nx ? `${nx.name}まで あと${nx.min - wins}点` : `成績${wins}点・最高の称号！`;
   }
+  function wandOpened(id, st) { st = st || loadStats(); return !!(st.wand && st.wand[id]); }
+  function placeWand(w, p) {
+    const pos = (C.WAND_POS && C.WAND_POS[p.id]) || { x: 55, bottom: 9, h: 24, r: 8 };
+    w.style.left = pos.x + "%"; w.style.bottom = pos.bottom + "%"; w.style.height = pos.h + "%"; w.style.setProperty("--r", pos.r + "deg");
+  }
+  function renderWandAndChest(p) {
+    const has = bondCount(p.id) >= 5, opened = wandOpened(p.id);
+    const w = $("room-wand");
+    w.hidden = !(has && opened);
+    if (!w.hidden) { w.src = C.WANDS[p.id]; placeWand(w, p); }
+    const ch = $("room-chest");
+    ch.hidden = !(has && !opened && C.WANDS[p.id]);
+    ch.classList.remove("opening", "opened");
+    if (!ch.hidden) $("chest-wand").src = C.WANDS[p.id];
+  }
+  $("room-chest").addEventListener("click", () => {
+    const ch = $("room-chest"), p = partner();
+    if (ch.classList.contains("opening")) return;
+    ch.classList.add("opening"); BGM.prepareJingles(); if (SND.isEnabled()) BGM.jingle("chest"); else SND.play("correct");
+    setTimeout(() => { ch.classList.add("opened"); }, 450);
+    setTimeout(() => {
+      const st = loadStats(); st.wand = st.wand || {}; st.wand[p.id] = true; saveStats(st);
+      ch.hidden = true; ch.classList.remove("opening", "opened");
+      const w = $("room-wand"); w.src = C.WANDS[p.id]; placeWand(w, p); w.hidden = false;
+      w.classList.remove("arrive"); void w.offsetWidth; w.classList.add("arrive");
+      $("room-bubble").textContent = say(p, "wand", "わあ、魔法の杖！大切にするね！");
+    }, 1700);
+  });
+
+  function bondCard(f, opts) {
+    const bn = bondCount(f.id), nx = bondNext(bn);
+    const prevAt = [0].concat(C.BOND_REWARDS.map((r) => r.at)).filter((a) => a <= bn).pop();
+    const pct = nx ? Math.round(((bn - prevAt) / (nx.at - prevAt)) * 100) : 100;
+    const th = C.BOND_THEME[f.id] || { main: "#f2557f", light: "#ffb3cc", bg: "#fff4f8", ink: "#7a3b52", border: "#f6b6cc" };
+    const el = document.createElement(opts && opts.tag || "div");
+    el.className = "bond-card" + (opts && opts.compact ? " compact" : "") + (opts && opts.current ? " current" : "");
+    ["main", "light", "bg", "ink", "border"].forEach((k) => el.style.setProperty("--bm-" + k, th[k]));
+    el.style.setProperty("--pct", pct + "%");
+    const fr = C.BOND_FRAME && C.BOND_FRAME[f.id];
+    if (fr) { el.classList.add("framed"); el.style.backgroundImage = `url(${fr.image})`; el.style.aspectRatio = `${fr.w} / ${fr.h}`; el.style.setProperty("--dy", fr.dy + "%"); }
+    const face = document.createElement("span"); face.className = "avatar bc-face"; renderAvatar(face, f);
+    el.innerHTML = `<span class="bc-gem" aria-hidden="true"><b>${bn}</b></span>`
+      + `<span class="bc-body"><span class="bc-name">${f.name}</span><span class="bc-bar"><i></i></span>`
+      + `<span class="bc-next">${nx ? `あと${nx.at - bn}回` : "ぜんぶ集めた！"}</span></span>`;
+    el.prepend(face);
+    el.setAttribute("aria-label", `${f.name}との絆 ${bn}回` + (nx ? `、あと${nx.at - bn}回で${nx.name}` : ""));
+    return el;
+  }
+  function fillBondPanel(box) {
+    box.innerHTML = "";
+    C.FAIRIES.filter((f) => !f.locked).forEach((f) => {
+      const card = bondCard(f, { current: f.id === partnerId });
+      const nx = bondNext(bondCount(f.id));
+      const nt = card.querySelector(".bc-next");
+      if (nt && nx) nt.innerHTML = `あと<b>${nx.at - bondCount(f.id)}</b>回`;
+      const cell = document.createElement("div"); cell.className = "bond-cell";
+      const cap = document.createElement("small"); cap.className = "bond-cap";
+      cap.textContent = nx ? `次：${nx.short || nx.name}${nx.ready ? "" : "（準備中）"}` : "ご褒美コンプリート！";
+      cell.append(card, cap); box.appendChild(cell);
+    });
+  }
+  const BOND_SEEN_KEY = "lblia_1h1b_bond_seen_v1";
+  function bondSeen() { try { return localStorage.getItem(BOND_SEEN_KEY) === "yes"; } catch (e) { return true; } }
+  $("bond-meter").addEventListener("click", () => { SND.play("tap"); try { localStorage.setItem(BOND_SEEN_KEY, "yes"); } catch (e) {  } $("bond-meter").classList.remove("hint"); fillBondPanel($("bond-panel-room")); $("bond-overlay").hidden = false; });
+  $("bond-overlay-close").addEventListener("click", () => { $("bond-overlay").hidden = true; });
+  $("bond-overlay").addEventListener("click", (e) => { if (e.target.id === "bond-overlay") $("bond-overlay").hidden = true; });
   $("profile-card").addEventListener("click", () => { SND.play("tap"); show("avatar"); });
 
   const ROOM_LINES = { guide: "まずは練習してみよう！", closet: "着せ替えはもうすぐ！楽しみにしててね" };
@@ -640,7 +703,6 @@
     const elem = document.createElement("span"); elem.className = "pelem"; elem.textContent = `${f.element}の妖精`;
     const trait = document.createElement("span"); trait.className = "ptrait"; trait.textContent = f.locked ? f.unlock : f.trait;
     b.append(av, name, elem, trait);
-    if (!f.locked) { const bd = document.createElement("span"); bd.className = "pbond"; bd.textContent = `💗 絆 ${bondCount(f.id)}回`; b.append(bd); }
     if (f.locked) b.disabled = true;
     else b.addEventListener("click", () => { savePartner(f.id); SND.play("select"); setupFlow ? setupNext() : show("home"); });
     return b;
@@ -680,6 +742,7 @@
     const grid = $("partner-grid"), locked = $("partner-locked");
     grid.innerHTML = ""; locked.innerHTML = "";
     C.FAIRIES.forEach((f) => (f.locked ? locked : grid).appendChild(partnerCard(f)));
+    fillBondPanel($("bond-panel"));
     $("partner-back").hidden = !partnerId;
   }
 

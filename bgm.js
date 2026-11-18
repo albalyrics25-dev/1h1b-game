@@ -52,8 +52,8 @@
     clearTimeout(duckTimer); duckTimer = setTimeout(restore, ms);
   }
 
-  const JINGLES = { win: "assets/jingle_win.m4a", lose: "assets/jingle_lose.m4a" };
-  const JINGLE_SEC = { win: 12.5, lose: 6.8 };
+  const JINGLES = { win: "assets/jingle_win.m4a", lose: "assets/jingle_lose.m4a", chest: "assets/jingle_chest.m4a" };
+  const JINGLE_SEC = { win: 12.5, lose: 6.8, chest: 4.5 };
   const JINGLE_VOLUME = 0.6;
   const jingles = {};
   let jingleNow = null;

@@ -49,12 +49,20 @@
         <div id="room-furniture"></div>
         <span class="room-bubble" id="room-bubble"></span>
         <span class="avatar room-fairy" id="room-fairy" aria-hidden="true"></span>
+        <img class="room-wand" id="room-wand" alt="" hidden draggable="false">
+        <button class="room-chest" id="room-chest" type="button" hidden aria-label="宝箱を開ける">
+          <img class="chest-closed" src="assets/chest_closed.webp" alt="" draggable="false">
+          <img class="chest-open" src="assets/chest_open.webp" alt="" draggable="false">
+          <img class="chest-wand" id="chest-wand" alt="" draggable="false">
+          <span class="chest-hint">タップ！</span>
+        </button>
         <span class="bond-meter" id="bond-meter"></span>
         <button class="profile-card" id="profile-card" type="button" aria-label="プロフィール（生徒と名前を変える）">
           <span class="avatar profile-face" id="profile-face" aria-hidden="true"></span>
           <span class="profile-text">
             <span class="profile-name" id="profile-name"></span>
             <span class="profile-rank" id="profile-rank"></span>
+            <span class="profile-mate" id="profile-mate" hidden></span>
             <span class="profile-bar" aria-hidden="true"><i id="profile-bar-fill"></i></span>
             <small class="profile-next" id="profile-next"></small>
           </span>
@@ -94,6 +102,8 @@
       <h2>パートナー妖精を選んでね</h2>
       <p class="note-strong" id="partner-intro">まずは4人の中から好きな妖精を選んでね！光と闇の妖精は、あとで特別な条件で仲間にできるよ！</p>
       <div class="partner-grid" id="partner-grid"></div>
+      <div class="bond-panel-title">✦ 妖精との絆 ✦</div>
+      <div class="bond-panel" id="bond-panel"></div>
       <h3>特別な妖精（あとで解放）</h3>
       <div class="partner-grid locked" id="partner-locked"></div>
       <button class="btn" data-go="home" id="partner-back">もどる</button>
@@ -263,6 +273,15 @@
         <button class="btn primary" id="call-btn">コールする</button>
       </div>
     </section>
+
+    <div class="overlay" id="bond-overlay" hidden>
+      <div class="result-card bond-sheet" role="dialog" aria-label="妖精との絆">
+        <div class="bond-panel-title">✦ 妖精との絆 ✦</div>
+        <div class="bond-panel" id="bond-panel-room"></div>
+        <p class="note">絆は妖精ごとに記録されます。パートナーを変えても消えません。</p>
+        <button class="btn" id="bond-overlay-close" type="button">とじる</button>
+      </div>
+    </div>
 
     <div class="overlay" id="result" hidden>
       <div class="confetti" id="confetti" aria-hidden="true"></div>
