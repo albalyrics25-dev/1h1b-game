@@ -641,7 +641,7 @@
       ch.hidden = true; ch.classList.remove("opening", "opened");
       const w = $("room-wand"); w.src = C.WANDS[p.id]; placeWand(w, p); w.hidden = false;
       w.classList.remove("arrive"); void w.offsetWidth; w.classList.add("arrive");
-      $("room-bubble").textContent = say(p, "wand", "わあ、魔法の杖！大切にするね！");
+      $("room-bubble").textContent = say(p, "wand") || "わあ、魔法の杖！大切にするね！";
     }, 1700);
   });
 
