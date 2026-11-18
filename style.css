@@ -633,3 +633,12 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .profile-text { overflow: hidden; }
 .profile-rank, .profile-next, .profile-mate { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .profile-mate { font-size: 10px; color: #ffd9a8; white-space: nowrap; }
+
+.chest-notice { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #fff7d6, #ffe9a8); color: #5a3a08; border: 2px solid #f6d36b; border-radius: 12px; padding: 6px 8px; box-shadow: 0 0 12px rgba(246,211,107,0.7); animation: chest-glow 1.4s ease-in-out infinite; }
+.chest-notice img { width: 52px; height: 52px; flex: none; }
+.chest-notice p { flex: 1; text-align: left; font-size: 13px; line-height: 1.35; }
+.chest-notice .btn { flex: none; }
+@keyframes chest-glow { 0%, 100% { box-shadow: 0 0 6px rgba(246,211,107,0.5); } 50% { box-shadow: 0 0 18px rgba(246,211,107,1); } }
+.chest-remind { background: #fff7d6; color: #5a3a08; border: 1.5px solid #f6d36b; border-radius: 10px; padding: 4px 8px; font-size: 13px; }
+.chest-remind .btn { color: #5a3a08; border-color: #c9a06a; margin-left: 4px; }
+@media (prefers-reduced-motion: reduce) { .chest-notice { animation: none; } }

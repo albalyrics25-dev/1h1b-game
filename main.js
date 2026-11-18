@@ -161,7 +161,7 @@
     if (name === "avatar") renderAvatarChoice();
     if (name === "name") { $("name-input").value = playerName(); $("name-msg").textContent = ""; }
     if (name === "howto") renderHowto(0);
-    if (name === "battle-setup") { renderOpponentOptions(); secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
+    if (name === "battle-setup") { $("chest-remind").hidden = !chestWaiting(); renderOpponentOptions(); secretInput = []; renderSlots("secret-slots", secretInput); $("setup-msg").textContent = ""; renderKeypadUsed("secret", secretInput); }
     if (name === "dice") resetDice();
     if (name === "practice") { markPracticeDone(); startPractice(); return; }
     window.scrollTo(0, 0);
@@ -486,11 +486,11 @@
       counts && dayCount + 1 === DAILY_LIMIT && !bondReward && !rankMsg ? say(pf, "daily_end", "今日はたくさん遊んだね！続きはまた明日！") :
       bondReward && bondReward.id === "secret" ? (C.BOND_SECRET[pf.id] || "").replace(/\{名前\}/g, playerName() || "あなた") : rankMsg ? sayNamed(partner(), "rankup") : outcome === "win" && st.streak >= 3 ? sayNamed(partner(), "streak") : say(partner(), outcome, partner().lines[outcome]),
       S.opp, S.opp.lines[oppView] || "",
-      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome], ask: askFeedback });
+      { win: outcome === "win", boss: outcome === "win" && !!S.opp.hidden, logo: { win: "victory", lose: "lose" }[outcome], ask: askFeedback && !(bondReward && bondReward.id === "wand"), chest: !!(bondReward && bondReward.id === "wand") });
   }
 
   function celebrate(fx) {
-    const card = document.querySelector(".result-card"), box = $("confetti");
+    const card = document.querySelector("#result .result-card"), box = $("confetti");
     card.classList.remove("win", "boss"); box.innerHTML = "";
     void card.offsetWidth;
     if (!fx || !fx.win) return;
@@ -516,6 +516,7 @@
   const ASK_KEY = "lblia_1h1b_feedback_ask_v1";
   function showResult(title, detail, fairyLine, opp, oppLine, fx) {
     $("feedback-ask").hidden = !(fx && fx.ask);
+    $("chest-notice").hidden = !(fx && fx.chest);
     $("result-title").textContent = title;
     const logo = fx && fx.logo;
     $("result-logo").hidden = !logo;
@@ -631,6 +632,8 @@
     ch.classList.remove("opening", "opened");
     if (!ch.hidden) $("chest-wand").src = C.WANDS[p.id];
   }
+  $("chest-go").addEventListener("click", () => { $("result").hidden = true; show("room"); });
+  function chestWaiting() { const p = partner(); return bondCount(p.id) >= 5 && !wandOpened(p.id) && !!C.WANDS[p.id]; }
   $("room-chest").addEventListener("click", () => {
     const ch = $("room-chest"), p = partner();
     if (ch.classList.contains("opening")) return;

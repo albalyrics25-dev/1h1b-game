@@ -199,6 +199,7 @@
           <div class="slots" id="secret-slots"></div>
         </div>
       </div>
+      <p class="chest-remind" id="chest-remind" hidden>🎁 寮の部屋に宝箱があるよ！ <button class="btn tiny" data-go="room" type="button">開けに行く</button></p>
       <p class="hint">🔒 相手に<wbr>当てられないように、<wbr>あなたの<wbr><b>秘密の数字</b>（4桁）を<wbr>決めよう。<br><small>相手には<wbr>見えません。<wbr>相手も<wbr>秘密の数字を<wbr>決めています！</small></p>
       <p class="msg" id="setup-msg"></p>
       <div class="keypad" data-keypad="secret"></div>
@@ -291,6 +292,11 @@
         <p id="result-detail"></p>
         <div class="fairy-talk"><span class="avatar" id="result-fairy" aria-hidden="true"></span><span class="bubble" id="result-bubble"></span></div>
         <div class="fairy-talk opp" id="result-opp-row"><span class="bubble" id="result-opp-bubble"></span><span class="avatar" id="result-opp" aria-hidden="true"></span></div>
+        <div class="chest-notice" id="chest-notice" hidden>
+          <img src="assets/chest_closed.webp" alt="" draggable="false">
+          <p><b>🎁 宝箱が届いたよ！</b><br>寮の部屋で開けてね</p>
+          <button class="btn primary small" id="chest-go" type="button">🏠 寮の部屋へ</button>
+        </div>
         <div class="feedback-ask" id="feedback-ask" hidden>
           <p>よかったら、遊んだ感想を教えてね！</p>
           <a class="btn small feedback-link" id="feedback-ask-link" href="#" target="_blank" rel="noopener">💌 感想を送る</a>
