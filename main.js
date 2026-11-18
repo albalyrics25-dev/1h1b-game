@@ -95,6 +95,30 @@
   }
 
   function isLocked(f) { return !!f.locked && !((loadStats().fairy || {})[f.id]); }
+  function figureCount(st) { return C.FAIRIES.filter((f) => C.FIGURES[f.id] && hasBond(f.id, "figure", st)).length; }
+  function meetReady(f, st) {
+    const m = f.meet; if (!m) return false;
+    if (schoolPoints(st) < m.rank || figureCount(st) < m.figures) return false;
+    return !m.beat || ((st.byOpp[m.beat] || {}).win || 0) > 0;
+  }
+  function checkNewFairies() {
+    const st = loadStats(), got = st.fairy || {};
+    const arrived = C.FAIRIES.filter((f) => f.locked && !got[f.id] && meetReady(f, st));
+    if (!arrived.length) return [];
+    st.fairy = Object.assign({}, got); arrived.forEach((f) => { st.fairy[f.id] = true; }); saveStats(st);
+    return arrived;
+  }
+  function showFairyArrive(list) {
+    if (!list.length) return;
+    const f = list[0], ov = $("fairy-arrive");
+    const old = $("fa-img"), img = old.cloneNode(false); img.src = f.image; img.alt = f.name; old.replaceWith(img);
+    $("fa-title").textContent = `✦ ${f.element}の妖精 ✦`;
+    $("fa-name").textContent = `「${f.name}」が舞い降りた！`;
+    $("fa-line").textContent = f.greeting;
+    ov.style.setProperty("--c", f.color); ov.hidden = false;
+    try { BGM.jingle("chest"); } catch (e) {  }
+    $("fa-ok").onclick = () => { ov.hidden = true; showFairyArrive(list.slice(1)); };
+  }
 
   function renderAvatar(el, ch, mode = "face") {
     el.style.setProperty("--c", ch.color);
@@ -574,6 +598,7 @@
   }
 
   function renderRoom() {
+    showFairyArrive(checkNewFairies());
     const box = $("room-furniture"); box.innerHTML = "";
     (C.FURNITURE || []).filter((f) => f.image && f.initial).forEach((f) => {
       const img = document.createElement("img");

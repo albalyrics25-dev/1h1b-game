@@ -653,3 +653,11 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .figure-cap { font-size: 13px; color: #f4e3c0; padding: 4px 0; }
 .figure-cell.mystery { justify-content: flex-end; min-height: 180px; }
 .figure-q { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 64px; color: rgba(255,240,200,0.25); font-weight: 700; }
+
+#fairy-arrive { z-index: 45; }
+.fa-card { text-align: center; }
+.fa-title { margin: 0; color: var(--c); font-weight: 700; letter-spacing: 0.2em; }
+.fa-img { width: 70%; max-width: 260px; display: block; margin: 4px auto; filter: drop-shadow(0 0 14px var(--c)); animation: fa-down 1.6s ease-out both; }
+@keyframes fa-down { from { transform: translateY(-40%) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.fa-name { font-weight: 700; font-size: 17px; margin: 6px 0 2px; }
+.fa-line { margin: 0 0 6px; }
