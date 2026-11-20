@@ -208,7 +208,8 @@
       b.addEventListener("click", () => {
         const input = getInput();
         if (!input) return;
-        if (input.length >= 4) return msgFor(kind, "4桁まで入力できます");
+        const max = kind === "guess" ? curLen() : 4;
+        if (input.length >= max) return msgFor(kind, `${max}桁まで入力できます`);
         if (input.includes(n)) return msgFor(kind, "同じ数字は使えません");
         if (input.length === 0 && n === 0) return msgFor(kind, "先頭に0は使えません");
         input.push(n); msgFor(kind, ""); SND.play("tap"); onChange();
@@ -229,9 +230,11 @@
       b.classList.toggle("used", input.includes(Number(b.dataset.n)));
     });
   }
+  function curLen() { return (S && S.mode === "practice" && S.len) || 4; }
   function renderSlots(id, input) {
     const box = $(id); box.innerHTML = "";
-    for (let i = 0; i < 4; i++) {
+    const n = id === "guess-slots" ? curLen() : 4;
+    for (let i = 0; i < n; i++) {
       const d = document.createElement("div");
       d.className = "slot" + (input[i] === undefined ? " empty" : "");
       d.textContent = input[i] === undefined ? "＿" : input[i];
@@ -263,7 +266,7 @@
     const ol = $(listId); ol.innerHTML = "";
     hist.forEach((h, i) => {
       const li = document.createElement("li");
-      if (h.result && h.result.hit === 4) li.className = "solved";
+      if (h.result && h.result.hit === h.guess.length) li.className = "solved";
       li.innerHTML = h.skip
         ? `<span class="n">${i + 1}</span><span class="g">時間切れ</span><span class="r">—</span>`
         : `<span class="n">${i + 1}</span><span class="g">${h.guess.join("")}</span><span class="r"><span class="hit">${h.result.hit}H</span> <span class="blow">${h.result.blow}B</span></span>`;
@@ -272,15 +275,27 @@
     ol.scrollTop = ol.scrollHeight;
   }
 
-  function startPractice() {
+  const PRAC_LEN_KEY = "lblia_1h1b_prac_len_v1";
+  function pracLen() {
+    try { const v = Number(localStorage.getItem(PRAC_LEN_KEY)); if ([2, 3, 4].includes(v)) return v; } catch (e) {  }
+    return loadStats().practice.games ? 4 : 2;
+  }
+  document.querySelectorAll("#prac-level [data-len]").forEach((b) => b.addEventListener("click", () => {
+    try { localStorage.setItem(PRAC_LEN_KEY, b.dataset.len); } catch (e) {  }
+    SND.play("select"); startPractice(Number(b.dataset.len));
+  }));
+  function startPractice(len) {
     stopTimers();
     BGM.stopJingle(); BGM.prepareJingles();
-    S = { mode: "practice", secret: H.makeSecret(), input: [], hist: [], over: false, canInput: true };
+    len = len || pracLen();
+    S = { mode: "practice", len, secret: H.makeSecret(Math.random, len), input: [], hist: [], over: false, canInput: true };
+    $("prac-level").hidden = false;
+    document.querySelectorAll("#prac-level [data-len]").forEach((b) => b.classList.toggle("on", Number(b.dataset.len) === len));
     BGM.setScene("battle");
     document.querySelectorAll(".screen").forEach((el) => { el.hidden = el.id !== "screen-play"; });
     $("mode-label").textContent = "練習モード";
     $("round-label").textContent = "回数制限なし";
-    $("turn-label").textContent = "答えを推理しよう！";
+    $("turn-label").textContent = `${len}けたの数字を当てよう！`;
     $("timer").hidden = true;
     $("my-secret-box").hidden = true;
     $("hist-cpu-box").hidden = true;
@@ -361,6 +376,7 @@
     };
     document.querySelectorAll(".screen").forEach((el) => { el.hidden = el.id !== "screen-play"; });
     $("mode-label").textContent = "対戦中！";
+    $("prac-level").hidden = true;
     $("timer").hidden = false;
     $("my-secret-box").hidden = false;
     $("my-secret").textContent = S.pSecret.join("");
@@ -429,7 +445,7 @@
 
   $("call-btn").addEventListener("click", () => {
     if (!S || S.over || !S.canInput) return;
-    if (S.input.length !== 4) { $("play-msg").textContent = "4桁入力してね！"; return; }
+    if (S.input.length !== curLen()) { $("play-msg").textContent = `${curLen()}桁入力してね！`; return; }
     const guess = S.input.slice();
     S.input = []; renderSlots("guess-slots", S.input); renderKeypadUsed("guess", S.input);
     if (S.mode === "practice") {
@@ -437,8 +453,8 @@
       S.hist.push({ guess, result });
       renderHistory("hist-player", S.hist);
       $("play-msg").textContent = "";
-      SND.play(result.hit === 4 ? "correct" : "result", result.hit);
-      if (result.hit === 4) { setTimeout(() => { if (SND.isEnabled()) BGM.jingle("win"); }, 450); finishPractice(false); }
+      SND.play(result.hit === S.len ? "correct" : "result", result.hit);
+      if (result.hit === S.len) { setTimeout(() => { if (SND.isEnabled()) BGM.jingle("win"); }, 450); finishPractice(false); }
       return;
     }
     stopTimers();
@@ -457,13 +473,20 @@
     const moves = S.hist.length;
     if (!revealed) {
       const st = loadStats();
-      st.practice.games++; st.practice.totalMoves += moves;
-      st.practice.best = st.practice.best === null ? moves : Math.min(st.practice.best, moves);
+      if (S.len === 4) {
+        st.practice.games++; st.practice.totalMoves += moves;
+        st.practice.best = st.practice.best === null ? moves : Math.min(st.practice.best, moves);
+      } else {
+        st.practiceSmall = st.practiceSmall || {};
+        const r = st.practiceSmall[S.len] || { games: 0, best: null };
+        r.games++; r.best = r.best === null ? moves : Math.min(r.best, moves); st.practiceSmall[S.len] = r;
+      }
       saveStats(st);
     }
+    const nextTip = !revealed && S.len < 4 ? `\nなれてきたら、上の「${S.len + 1}けた」にも挑戦してみよう！` : "";
     const p = partner();
     showResult(revealed ? "答え" : "正解！🎉",
-      revealed ? `答えは ${S.secret.join("")} でした` : `${moves}手で正解！（答え ${S.secret.join("")}）`,
+      revealed ? `答えは ${S.secret.join("")} でした` : `${moves}手で正解！（答え ${S.secret.join("")}）${nextTip}`,
       revealed ? C.REVEAL_LINE : say(p, "correct", p.lines.correct), null, "", { win: !revealed });
   }
 
@@ -562,7 +585,7 @@
 
   function newGame() {
     $("result").hidden = true;
-    if (!S || S.mode === "practice") startPractice();
+    if (!S || S.mode === "practice") startPractice(S && S.len);
     else show("battle-setup");
   }
   $("newgame-btn").addEventListener("click", newGame);

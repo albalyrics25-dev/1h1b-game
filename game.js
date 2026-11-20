@@ -9,10 +9,10 @@
     return new Set(nums).size === 4 && nums.every((n) => DIGITS.includes(n));
   }
 
-  function makeSecret(rng = Math.random) {
+  function makeSecret(rng = Math.random, len = 4) {
     const nums = DIGITS.slice();
     const result = [];
-    while (result.length < 4) {
+    while (result.length < len) {
       const i = Math.floor(rng() * nums.length);
       const n = nums[i];
       if (result.length === 0 && n === 0) continue;

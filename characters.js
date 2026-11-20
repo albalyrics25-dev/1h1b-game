@@ -27,13 +27,13 @@
       image: "assets/fairy_terra_stand.webp", icon: "assets/fairy_terra_icon.webp", face: { x: 0.5, y: 0.32, zoom: 1.7 }, locked: false
     },
     {
-      id: "luce", name: "ルーチェ", element: "光", gender: "", trait: "気品溢れる", mark: "✨", color: "#f0d27a",
+      id: "luce", name: "ルーチェ", element: "光", gender: "女", trait: "気品溢れる", mark: "✨", color: "#f0d27a",
       greeting: "あなたならできます",
       lines: { win: "お見事です。素晴らしい勝利ですね", lose: "次の挑戦も応援しています", draw: "互いに立派な戦いでした", correct: "素晴らしいお答えです" },
       image: "assets/fairy_luce_stand.webp", icon: "assets/fairy_luce_icon.webp", face: { x: 0.55, y: 0.3, zoom: 1.7 }, locked: true, meet: { rank: 25, figures: 1 }, unlock: "称号「優等生」＋フィギュア1つで舞い降りる"
     },
     {
-      id: "noir", name: "ノワール", element: "闇", gender: "", trait: "無愛想だけど心が綺麗", mark: "🌙", color: "#9b7fd1",
+      id: "noir", name: "ノワール", element: "闇", gender: "男", trait: "無愛想だけど心が綺麗", mark: "🌙", color: "#9b7fd1",
       greeting: "……いいけど",
       lines: { win: "……やるな", lose: "……次がある", draw: "……悪くない勝負だ", correct: "……正解だ。頑張ったな" },
       image: "assets/fairy_noir_stand.webp", icon: "assets/fairy_noir_icon.webp", face: { x: 0.5, y: 0.32, zoom: 1.7 }, locked: true, meet: { rank: 40, figures: 2, beat: "souma_true" }, unlock: "称号「首席」＋フィギュア2つ＋隠しボスに勝つと舞い降りる"

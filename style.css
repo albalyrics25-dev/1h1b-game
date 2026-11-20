@@ -661,3 +661,9 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 @keyframes fa-down { from { transform: translateY(-40%) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
 .fa-name { font-weight: 700; font-size: 17px; margin: 6px 0 2px; }
 .fa-line { margin: 0 0 6px; }
+
+.prac-level { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0; }
+.prac-level[hidden] { display: none; }
+.prac-level .pl-label { font-size: 13px; color: var(--muted, #e9dcc0); }
+.prac-level button { font: inherit; font-size: 14px; padding: 4px 12px; border-radius: 99px; border: 2px solid #c9a06a; background: rgba(255,255,255,0.08); color: inherit; }
+.prac-level button.on { background: #f6d36b; color: #3b2614; border-color: #f6d36b; font-weight: 700; }
